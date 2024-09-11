@@ -40,6 +40,31 @@ public class SystemController implements ControllerInterface {
 		retval.addAll(da.readBooksMap().keySet());
 		return retval;
 	}
-	
-	
+
+	@Override
+	public List<Book> allBooks() {
+		DataAccess da = new DataAccessFacade();
+		List<Book> retval = new ArrayList<>();
+		retval.addAll(da.readBooksMap().values());
+		return retval;
+	}
+
+	@Override
+	public List<Author> allAuthors() {
+		DataAccess da = new DataAccessFacade();
+		List<Book> retval = new ArrayList<>();
+		retval.addAll(da.readBooksMap().values());
+		List<Author> authors= retval.stream().flatMap(x->x.getAuthors().stream()).toList();
+		return authors;
+	}
+
+	public static void main(String[] args){
+		SystemController a = new SystemController();
+
+		DataAccess da = new DataAccessFacade();
+
+		System.out.println(da.readMemberMap().values());
+		System.out.println(a.allAuthors());
+	}
+
 }
