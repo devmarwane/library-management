@@ -58,8 +58,7 @@ public class LibrarySystem extends JFrame implements LibWindow {
 
 		title = "Library Application";
 		userName = "";
-		//@todo disable menus by defaul
-		userRole = Auth.BOTH;
+		userRole = Auth.NONE;
 		createMenus();
 		updateUI();
 
@@ -67,13 +66,11 @@ public class LibrarySystem extends JFrame implements LibWindow {
 		isInitialized = true;
     }
 
-	private void updateUI() {
-		setTitle(title + " userid = " + userName);
+	public  void updateUI() {
+		setTitle(title + " user: " + userName);
 		optionsMenu.setEnabled(true);
-		librarianMenu.setEnabled(false);
-		adminMenu.setEnabled(false);
 
-		switch(userRole) {
+		switch (userRole) {
 			case Auth.LIBRARIAN:
 				librarianMenu.setEnabled(true);
 				break;
@@ -83,6 +80,10 @@ public class LibrarySystem extends JFrame implements LibWindow {
 			case Auth.BOTH:
 				librarianMenu.setEnabled(true);
 				adminMenu.setEnabled(true);
+				break;
+			case Auth.NONE:
+				librarianMenu.setEnabled(false);
+				adminMenu.setEnabled(false);
 				break;
 		}
 	}
