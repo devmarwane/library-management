@@ -10,7 +10,7 @@ import java.util.Optional;
 /**
  *
  */
-final public class Book implements Serializable {
+final public class Book implements Serializable, Cloneable {
 	
 	private static final long serialVersionUID = 6110690276685962829L;
 	private BookCopy[] copies;
@@ -82,6 +82,7 @@ final public class Book implements Serializable {
 	public String getTitle() {
 		return title;
 	}
+
 	public BookCopy[] getCopies() {
 		return copies;
 	}
@@ -113,8 +114,11 @@ final public class Book implements Serializable {
 		return maxCheckoutLength;
 	}
 
-	
-	
+
+	@Override
+	public Object clone() throws CloneNotSupportedException {
+		return super.clone();
+	}
 	
 	
 }

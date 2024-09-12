@@ -2,13 +2,18 @@ package librarysystem;
 
 import business.*;
 import dataaccess.DataAccess;
-
+import dataaccess.DataAccessFacade;
 import javax.swing.*;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 import java.util.List;
+
+import static librarysystem.Util.setPanelEnabled;
 
 public class BooksWindow extends JFrame{
     private JTextField txtIsbn;
@@ -23,12 +28,31 @@ public class BooksWindow extends JFrame{
     private JButton editBookButton;
     private JButton deleteBookButton;
     private JButton newAuthorButton;
+    private JPanel frmBook;
+    private JButton newBookButton;
+    private JButton saveButton;
 
+    private void createUIComponents() {
+        // TODO: place custom component creation code here
+    }
+
+    enum formStateEnum{
+        Idle,
+        New,
+        Editing,
+        Viewing
+    }
 
     //Services
-    private DataAccess dataAccess;
-    private ControllerInterface controller;
+    private ControllerInterface controller= new SystemController();
+    private DataAccess dataAccess = new DataAccessFacade();
 
+    private int itemIndex = -1;
+    private formStateEnum formState = formStateEnum.Idle;
+    private formStateEnum authorFormState;
+    private List<Book> books;
+    private Book currentBook;
+    private List<Author> authors = new ArrayList<>();
     private DefaultTableModel bookTableModel;
     private DefaultListModel<Author> authorListModel;  // Model for JList to display authors
 
@@ -44,8 +68,9 @@ public class BooksWindow extends JFrame{
         // Make your screen center
         setLocationRelativeTo(null);
         setResizable(false);// If you wish
-        //Data
-        controller = new SystemController();
+        //Load books
+        books = controller.allBooks();
+
         // Table to display the books
         bookTableModel = new DefaultTableModel(new String[]{"ISBN", "Title", "Authors", "Copies"}, 0);
         tblBooks = new JTable(bookTableModel){
@@ -54,52 +79,176 @@ public class BooksWindow extends JFrame{
                 return false;
             }
         };
+        tblBooks.getSelectionModel().addListSelectionListener(new ListSelectionListener(){
+            public void valueChanged(ListSelectionEvent event) {
+
+                if (event.getValueIsAdjusting() && tblBooks.getSelectedRow()>=0) {
+                    if (formState == formStateEnum.Idle || formState == formStateEnum.Viewing){
+                        itemIndex = tblBooks.getSelectedRow();
+                        formState = formStateEnum.Viewing;
+                        Book book = books.get(itemIndex);
+                        try {
+                            currentBook = (Book) book.clone();
+                            authors = new ArrayList<>(currentBook.getAuthors());
+                        } catch (CloneNotSupportedException e) {
+                            throw new RuntimeException(e);
+                        }
+                        showBook(currentBook);
+                        setPanelEnabled(frmBook,false);
+                        //tblBooks.di
+                    } else {
+                        JOptionPane.showMessageDialog(null, "Please complete or cancel current operation first!", "Error",
+                                JOptionPane.ERROR_MESSAGE);
+                    }
+
+                }
+            }
+        });
         tblBooks.setCellSelectionEnabled(false);
         tblBooks.setRowSelectionAllowed(true);
         //Load Books
         loadBooks();
         //Load authors
-        loadAuthors();
-
+        loadAuthors(new ArrayList<>());
+        lstAuthors.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                if (e.getValueIsAdjusting()) {
+                    Integer index = lstAuthors.getSelectedIndex();
+                    if (index >= 0) {
+                        Author _author = authors.get(index);
+                        showEditAuthorDialog(_author, index);
+                    }
+                }
+            }
+        });
         tblBooksScroll.setViewportView(tblBooks);
         tblBooksScroll.setSize(600, 400);
+
+        setPanelEnabled(frmBook,false);
 
         clearFormButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                txtTitle.setText("");
-                txtIsbn.setText("");
-                lstAuthors.clearSelection();
-                tblBooks.clearSelection();
-                //showAddAuthorDialog(new Author("Marwan","Bidamou","000000",null,"bingo"));
-                showAddAuthorDialog(null);
+                clearForm();
+                setPanelEnabled(frmBook,false);
+                formState = formStateEnum.Idle;
+            }
+        });
+        newAuthorButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                showEditAuthorDialog(null, -1);
+                itemIndex = -1;
+            }
+        });
+        editBookButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (itemIndex==-1) {
+                    JOptionPane.showMessageDialog(null, "Please choose a book from the list first!", "Error",
+                            JOptionPane.ERROR_MESSAGE);
+                } else if (formState != formStateEnum.Viewing){
+                    JOptionPane.showMessageDialog(null, "Please cancel or complete the current operation first!", "Error",
+                            JOptionPane.ERROR_MESSAGE);
+                } else {
+                    formState = formStateEnum.Editing;
+                    setPanelEnabled(frmBook,true);
+                }
+            }
+        });
+        saveButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.out.println(formState);
+                if (formState == formStateEnum.Idle || formState == formStateEnum.Viewing){
+                    JOptionPane.showMessageDialog(null, "Choose an operation (Add/Edit) first!", "Error",
+                            JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                if (formState == formStateEnum.New){
+                    //TODO: validate form
+                    int maxCheckout = rdBtn7days.isSelected()?7:21;
+                    Book book = new Book(txtIsbn.getText(),txtTitle.getText(),maxCheckout,authors);
+                    books.add(book);
+                    loadBooks();
+                    formState = formStateEnum.Viewing;
+                    itemIndex = (int) books.stream().count()-1;
+                    setPanelEnabled(frmBook, false);
+                    dataAccess.saveNewBook(book);
+                }else if (formState == formStateEnum.Editing){
+
+                    //TODO: validate form
+                    int maxCheckout = rdBtn7days.isSelected()?7:21;
+                    Book _updatedBook = new Book(txtIsbn.getText(),txtTitle.getText(),maxCheckout,authors);
+                    books.set(itemIndex,_updatedBook);
+                    loadBooks();
+                    dataAccess.updateBook(_updatedBook);
+                    formState = formStateEnum.Viewing;
+                    setPanelEnabled(frmBook, false);
+                }
+
+            }
+        });
+        newBookButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (formState == formStateEnum.Editing || formState==formStateEnum.New){
+                    JOptionPane.showMessageDialog(null, "Please cancel or complete the current operation first!", "Error",
+                            JOptionPane.ERROR_MESSAGE);
+                } else {
+                    clearForm();
+                    setPanelEnabled(frmBook,true);
+                    formState = formStateEnum.New;
+                    itemIndex = -1;
+                }
             }
         });
     }
 
     // Load books from the SystemController (allBooks method) and populate the table
     private void loadBooks() {
-        List<Book> books = controller.allBooks();  // Use the allBooks method from SystemController
+        // Use the allBooks method from SystemController
+        bookTableModel.setRowCount(0);
         for (Book book : books) {
-            System.out.println("Iteration book :" +book.getIsbn());
             String authors = String.join(", ", book.getAuthors().stream().map(Author::getFullName).toArray(String[]::new));
-            System.out.println("Authors :" +authors);
-
             bookTableModel.addRow(new Object[]{book.getIsbn(), book.getTitle(), authors, book.getNumCopies()});
         }
     }
 
-    private void loadAuthors() {
+    private void loadAuthors(List<Author> authors) {
         authorListModel = new DefaultListModel<>();  // Initialize the model for the authors list
         lstAuthors.setModel(authorListModel);  // Attach the model to the JList
-
-        List<Author> authors = controller.allAuthors();  // Assuming you have this method in SystemController
+        this.authors = new ArrayList<>(authors);
         for (Author author : authors) {
             authorListModel.addElement(author);  // Add each author to the list model
         }
     }
 
-    private void showAddAuthorDialog(Author author) {
+    private void showBook(Book book){
+        txtTitle.setText(book.getTitle());
+        txtIsbn.setText(book.getIsbn());
+        if (book.getMaxCheckoutLength()==7){
+            rdBtn7days.setSelected(true);
+        }else {
+            rdBtn21days.setSelected(true);
+        }
+        loadAuthors(new ArrayList<>(book.getAuthors()));
+    }
+
+    private void clearForm(){
+        txtTitle.setText("");
+        txtIsbn.setText("");
+        loadAuthors(new ArrayList<>());
+        lstAuthors.clearSelection();
+        tblBooks.clearSelection();
+        itemIndex = -1;
+    }
+
+    private void showEditAuthorDialog(Author author, Integer _index) {
+        System.out.println("--------------------Index"+_index);
+        authorFormState = author==null?formStateEnum.New : formStateEnum.Editing;
         // Create a new JDialog
         JDialog dialog = new JDialog(this, author!=null?"Edit Author":"Add Author", true);  // Modal dialog
         dialog.setSize(400, 500);
@@ -174,12 +323,22 @@ public class BooksWindow extends JFrame{
             if (!firstName.isEmpty() && !lastName.isEmpty() && !telephone.isEmpty() && !street.isEmpty()
                     && !city.isEmpty() && !state.isEmpty() && !zip.isEmpty() && !bio.isEmpty()) {
 
-                // Create a new Address and Author object
-                Address address = new Address(street, city, state, zip);
-                Author newAuthor = new Author(firstName, lastName, telephone, address, bio);
+                if(authorFormState==formStateEnum.New) {
+                    // Create a new Address and Author object
+                    Address address = new Address(street, city, state, zip);
+                    Author newAuthor = new Author(firstName, lastName, telephone, address, bio);
 
-                // Add the new author to the JList (assuming you are using authorListModel for the JList)
-                authorListModel.addElement(newAuthor);  // Add the author to the list
+                    // Add the new author to the JList (assuming you are using authorListModel for the JList)
+                    authors.add(newAuthor);
+                    authorListModel.addElement(newAuthor);  // Add the author to the list
+                } else {
+                    Address address = new Address(street, city, state, zip);
+                    Author _author = new Author(firstName, lastName, telephone, address, bio);
+                    System.out.println("+++++++++++++++"+_index);
+                    authors.set(_index, _author);
+                    loadAuthors(authors);
+                }
+
 
                 dialog.dispose();  // Close the dialog
             } else {
@@ -204,7 +363,6 @@ public class BooksWindow extends JFrame{
         EventQueue.invokeLater(new Runnable() {
             public void run() {
                 BooksWindow mf = new BooksWindow();
-
             }
         });
     }
