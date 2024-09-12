@@ -1,5 +1,6 @@
 package business;
 
+import java.lang.reflect.Member;
 import java.util.List;
 
 import business.Book;
@@ -12,6 +13,7 @@ public interface ControllerInterface {
 	public List<String> allBookIds();
 
 	public List<Book> allBooks();
+	public List<LibraryMember> allMembers();
 
 	public List<Author> allAuthors();
 
