@@ -29,7 +29,7 @@ public class LibrarySystem extends JFrame implements LibWindow {
 	JMenu librarianMenu;
 	JMenu adminMenu;
 
-	JMenuItem login, checkoutBook,  allBookIds, allMemberIds, oneBook;
+	JMenuItem login, checkoutBook,  allBookIds, allMemberIds;
     String pathToImage;
 	String userName ;
 	Auth userRole;
@@ -40,7 +40,8 @@ public class LibrarySystem extends JFrame implements LibWindow {
     	LibrarySystem.INSTANCE,
 		LoginWindow.INSTANCE,
 		AllMemberIdsWindow.INSTANCE,	
-		AllBookIdsWindow.INSTANCE
+		//BooksWindow.INSTANCE,
+		CheckoutWindow.INSTANCE
 	};
 
 	public static void hideAllWindows() {		
@@ -122,15 +123,14 @@ public class LibrarySystem extends JFrame implements LibWindow {
 		login = new JMenuItem("Change User");
 		login.addActionListener(new LoginListener());
 		checkoutBook = new JMenuItem("Checkout Book");
+		checkoutBook.addActionListener(new CheckoutBookListener());
 		allBookIds = new JMenuItem("Admin Boooks");
 		allBookIds.addActionListener(new AllBookIdsListener());
-		oneBook = new JMenuItem("Add copies");
 		allMemberIds = new JMenuItem("Admin Members");
 		allMemberIds.addActionListener(new AllMemberIdsListener());
 		optionsMenu.add(login);
 		adminMenu.add(allMemberIds);
 		adminMenu.add(allBookIds);
-		adminMenu.add(oneBook);
 		librarianMenu.add(checkoutBook);
     }
     
@@ -146,6 +146,19 @@ public class LibrarySystem extends JFrame implements LibWindow {
 		}
     	
     }
+
+	class CheckoutBookListener implements ActionListener {
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			LibrarySystem.hideAllWindows();
+			CheckoutWindow.INSTANCE.init();
+			Util.centerFrameOnDesktop(CheckoutWindow.INSTANCE);
+			CheckoutWindow.INSTANCE.setVisible(true);
+
+		}
+
+	}
     class AllBookIdsListener implements ActionListener {
 
 		@Override

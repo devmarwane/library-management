@@ -15,7 +15,7 @@ import java.util.List;
 
 import static librarysystem.Util.setPanelEnabled;
 
-public class BooksWindow extends JFrame{
+public class BooksWindow extends JFrame {
     private JTextField txtIsbn;
     private JTextField txtTitle;
     private JRadioButton rdBtn7days;
@@ -33,7 +33,7 @@ public class BooksWindow extends JFrame{
     private JButton saveButton;
     private JButton btnCopiesMng;
 
-    private void createUIComponents() {
+    private void createUIComponents()   {
         // TODO: place custom component creation code here
     }
 
