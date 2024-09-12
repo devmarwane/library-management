@@ -82,7 +82,7 @@ public class SystemController implements ControllerInterface {
 		//@todo
 		BookCopy copy = getCopyofBook(isbn);
 		LibraryMember mem = getMemberRecord(memberId);
-		//addCheckoutEnty();
+		//addCheckoutEnty(copy,mem);
 		//saveEntry();
 		CheckoutEntry e = new CheckoutEntry();
 		//return CheckoutEntry;
@@ -99,5 +99,7 @@ public class SystemController implements ControllerInterface {
 		//return copy;
 		return null;
 	}
+	private void addCheckoutEnty(BookCopy bc, LibraryMember mem){
 
+	}
 }
