@@ -167,7 +167,7 @@ public class MembersWindow extends JFrame {
         }
 
         if (!Pattern.matches(phonePattern, txtPhone.getText())) {
-            JOptionPane.showMessageDialog(this, "Phone number must be in the format (123) 456-7890.");
+            JOptionPane.showMessageDialog(this, "Phone number must be in the format 123-456-7890.");
             return false;
         }
 
