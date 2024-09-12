@@ -29,7 +29,7 @@ public class LibrarySystem extends JFrame implements LibWindow {
 	JMenu librarianMenu;
 	JMenu adminMenu;
 
-	JMenuItem login, chechoutBoook,  allBookIds, allMemberIds, oneBook;
+	JMenuItem login, checkoutBook,  allBookIds, allMemberIds;
     String pathToImage;
 	String userName ;
 	Auth userRole;
@@ -40,7 +40,8 @@ public class LibrarySystem extends JFrame implements LibWindow {
     	LibrarySystem.INSTANCE,
 		LoginWindow.INSTANCE,
 		AllMemberIdsWindow.INSTANCE,	
-		AllBookIdsWindow.INSTANCE
+		//BooksWindow.INSTANCE,
+		CheckoutWindow.INSTANCE
 	};
 
 	public static void hideAllWindows() {		
@@ -58,8 +59,7 @@ public class LibrarySystem extends JFrame implements LibWindow {
 
 		title = "Library Application";
 		userName = "";
-		//@todo disable menus by defaul
-		userRole = Auth.BOTH;
+		userRole = Auth.NONE;
 		createMenus();
 		updateUI();
 
@@ -67,22 +67,26 @@ public class LibrarySystem extends JFrame implements LibWindow {
 		isInitialized = true;
     }
 
-	private void updateUI() {
-		setTitle(title + " userid = " + userName);
+	public  void updateUI() {
+		setTitle(title + " user: " + userName);
 		optionsMenu.setEnabled(true);
-		librarianMenu.setEnabled(false);
-		adminMenu.setEnabled(false);
 
-		switch(userRole) {
+		switch (userRole) {
 			case Auth.LIBRARIAN:
 				librarianMenu.setEnabled(true);
+				adminMenu.setEnabled(false);
 				break;
 			case Auth.ADMIN:
 				adminMenu.setEnabled(true);
+				librarianMenu.setEnabled(false);
 				break;
 			case Auth.BOTH:
 				librarianMenu.setEnabled(true);
 				adminMenu.setEnabled(true);
+					break;
+			case Auth.NONE:
+				librarianMenu.setEnabled(false);
+				adminMenu.setEnabled(false);
 				break;
 		}
 	}
@@ -118,17 +122,16 @@ public class LibrarySystem extends JFrame implements LibWindow {
 		menuBar.add(adminMenu);
 		login = new JMenuItem("Change User");
 		login.addActionListener(new LoginListener());
-		chechoutBoook = new JMenuItem("Checkout Book");
+		checkoutBook = new JMenuItem("Checkout Book");
+		checkoutBook.addActionListener(new CheckoutBookListener());
 		allBookIds = new JMenuItem("Admin Boooks");
 		allBookIds.addActionListener(new AllBookIdsListener());
-		oneBook = new JMenuItem("Add copies");
 		allMemberIds = new JMenuItem("Admin Members");
 		allMemberIds.addActionListener(new AllMemberIdsListener());
 		optionsMenu.add(login);
 		adminMenu.add(allMemberIds);
 		adminMenu.add(allBookIds);
-		adminMenu.add(oneBook);
-		librarianMenu.add(chechoutBoook);
+		librarianMenu.add(checkoutBook);
     }
     
     class LoginListener implements ActionListener {
@@ -143,6 +146,19 @@ public class LibrarySystem extends JFrame implements LibWindow {
 		}
     	
     }
+
+	class CheckoutBookListener implements ActionListener {
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			LibrarySystem.hideAllWindows();
+			CheckoutWindow.INSTANCE.init();
+			Util.centerFrameOnDesktop(CheckoutWindow.INSTANCE);
+			CheckoutWindow.INSTANCE.setVisible(true);
+
+		}
+
+	}
     class AllBookIdsListener implements ActionListener {
 
 		@Override
