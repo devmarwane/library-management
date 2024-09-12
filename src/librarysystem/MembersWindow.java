@@ -9,10 +9,11 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Pattern;
 
-public class MembersWindow extends JFrame implements LibWindow{
+public class MembersWindow extends JFrame implements LibWindow {
     public static final MembersWindow INSTANCE = new MembersWindow();
     private boolean isInitialized = false;
     private JTextField txtMemberId;
@@ -144,7 +145,7 @@ public class MembersWindow extends JFrame implements LibWindow{
 
     @Override
     public void init() {
-        if(isInitialized) return;
+        if (isInitialized) return;
         setMembersWindow();
         pack();
         isInitialized = true;
@@ -153,9 +154,11 @@ public class MembersWindow extends JFrame implements LibWindow{
     public boolean isInitialized() {
         return isInitialized;
     }
+
     public void isInitialized(boolean val) {
         isInitialized = val;
     }
+
     private void loadMembers() {
         List<LibraryMember> members = controller.allMembers();
         for (LibraryMember member : members) {
@@ -228,21 +231,10 @@ public class MembersWindow extends JFrame implements LibWindow{
     }
 
     private LibraryMember getSelectedMember(int selectedRow) {
+        HashMap<String, LibraryMember> mems = dataAccess.readMemberMap();
         String memberId = (String) memberTableModel.getValueAt(selectedRow, 0);
-        String firstName = (String) memberTableModel.getValueAt(selectedRow, 1);
-        String lastName = (String) memberTableModel.getValueAt(selectedRow, 2);
-        String phone = (String) memberTableModel.getValueAt(selectedRow, 3);
-        String addressString = (String) memberTableModel.getValueAt(selectedRow, 4);
 
-        String[] addressParts = addressString.split(", ");
-        String street = addressParts.length > 0 ? addressParts[0] : "";
-        String city = addressParts.length > 1 ? addressParts[1] : "";
-        String state = addressParts.length > 2 ? addressParts[2] : "";
-        String zip = addressParts.length > 3 ? addressParts[3] : "";
-
-        Address address = new Address(street, city, state, zip);
-
-        return new LibraryMember(memberId, firstName, lastName, phone, address);
+        return mems.get(memberId);
     }
 
     private void updateMemberInTable(LibraryMember member) {
