@@ -136,7 +136,9 @@
                 <preferred-size width="150" height="-1"/>
               </grid>
             </constraints>
-            <properties/>
+            <properties>
+              <text value=""/>
+            </properties>
           </component>
           <component id="e41a4" class="javax.swing.JTextField" binding="txtStreet">
             <constraints>
@@ -233,20 +235,12 @@
               <text value="Edit Member"/>
             </properties>
           </component>
-          <component id="7410" class="javax.swing.JButton" binding="deleteMemberButton">
-            <constraints>
-              <grid row="0" column="4" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
-            </constraints>
-            <properties>
-              <text value="Delete Member"/>
-            </properties>
-          </component>
           <component id="8e8cf" class="javax.swing.JButton" binding="addMemberButton">
             <constraints>
               <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text value="Create Member"/>
+              <text value="Add Member"/>
             </properties>
           </component>
           <component id="b415c" class="javax.swing.JButton" binding="saveButton" default-binding="true">
@@ -255,6 +249,14 @@
             </constraints>
             <properties>
               <text value="Save"/>
+            </properties>
+          </component>
+          <component id="7410" class="javax.swing.JButton" binding="deleteMemberButton">
+            <constraints>
+              <grid row="0" column="4" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <text value="Delete Member"/>
             </properties>
           </component>
         </children>

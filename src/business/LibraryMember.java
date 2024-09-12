@@ -8,25 +8,30 @@ import dataaccess.DataAccess;
 import dataaccess.DataAccessFacade;
 
 final public class LibraryMember extends Person implements Serializable {
-	private String memberId;
-	
-	public LibraryMember(String memberId, String fname, String lname, String tel,Address add) {
-		super(fname,lname, tel, add);
-		this.memberId = memberId;		
-	}
-	
-	
-	public String getMemberId() {
-		return memberId;
-	}
+    private String memberId;
 
-	
-	
-	@Override
-	public String toString() {
-		return "Member Info: " + "ID: " + memberId + ", name: " + getFirstName() + " " + getLastName() + 
-				", " + getTelephone() + " " + getAddress();
-	}
+    public LibraryMember(String memberId, String fname, String lname, String tel, Address add) {
+        super(fname, lname, tel, add);
+        this.memberId = memberId;
+    }
 
-	private static final long serialVersionUID = -2226197306790714013L;
+
+    public String getMemberId() {
+        return memberId;
+    }
+
+
+//    public static LibraryMember getLibraryMember(String memberId) {
+//        DataAccess dataAccess = new DataAccessFacade();
+//        return dataAccess.getMemberById(memberId);
+//    }
+
+
+    @Override
+    public String toString() {
+        return "Member Info: " + "ID: " + memberId + ", name: " + getFirstName() + " " + getLastName() +
+                ", " + getTelephone() + " " + getAddress();
+    }
+
+    private static final long serialVersionUID = -2226197306790714013L;
 }

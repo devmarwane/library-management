@@ -2,6 +2,7 @@ package librarysystem;
 
 import business.*;
 import dataaccess.DataAccess;
+import dataaccess.DataAccessFacade;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -9,6 +10,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
+import java.util.regex.Pattern;
 
 public class MembersWindow extends JFrame {
     private JTextField txtMemberId;
@@ -28,10 +30,16 @@ public class MembersWindow extends JFrame {
     private JButton addMemberButton;
     private JButton saveButton;
 
-    private DataAccess dataAccess;
+    private DataAccess dataAccess = new DataAccessFacade();
     private ControllerInterface controller;
 
     private DefaultTableModel memberTableModel;
+
+    private enum formStateEnum {Idle, Viewing, New, Editing}
+
+    private formStateEnum formState = formStateEnum.Idle;
+    private int itemIndex = -1;
+    private int memberIdCounter = 1;
 
     public MembersWindow() {
         setVisible(true);
@@ -56,43 +64,79 @@ public class MembersWindow extends JFrame {
         tblMembersScroll.setViewportView(tblMembers);
         tblMembersScroll.setSize(600, 400);
 
-        clearFormButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                clearForm();
+        formState = formStateEnum.Viewing;
+        setFormEnabled(false);
+
+        clearFormButton.addActionListener(e -> clearForm());
+
+        addMemberButton.addActionListener(e -> {
+            formState = formStateEnum.New;
+            clearForm();
+            txtMemberId.setText(String.valueOf(memberIdCounter++));
+            setFormEnabled(true);
+            txtMemberId.setEnabled(false);
+        });
+
+        editMemberButton.addActionListener(e -> {
+            int selectedRow = tblMembers.getSelectedRow();
+            if (selectedRow != -1) {
+                formState = formStateEnum.Editing;
+                itemIndex = selectedRow;
+                LibraryMember selectedMember = getSelectedMember(selectedRow);
+                populateForm(selectedMember);
+                setFormEnabled(true);
+                txtMemberId.setEnabled(false);
+            } else {
+                JOptionPane.showMessageDialog(MembersWindow.this, "Please select a member to edit.");
             }
         });
 
-        addMemberButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                saveMember(null);
+        deleteMemberButton.addActionListener(e -> {
+            int selectedRow = tblMembers.getSelectedRow();
+            if (selectedRow != -1) {
+                LibraryMember memberToDelete = getSelectedMember(selectedRow);
+                memberTableModel.removeRow(selectedRow);
+                dataAccess.updateMember(memberToDelete);
+                JOptionPane.showMessageDialog(MembersWindow.this, "Member deleted successfully.");
+            } else {
+                JOptionPane.showMessageDialog(MembersWindow.this, "Please select a member to delete.");
             }
         });
 
-        editMemberButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                int selectedRow = tblMembers.getSelectedRow();
-                if (selectedRow != -1) {
-                    LibraryMember selectedMember = getSelectedMember(selectedRow);
-                    populateForm(selectedMember);
-                } else {
-                    JOptionPane.showMessageDialog(MembersWindow.this, "Please select a member to edit.");
-                }
+        saveButton.addActionListener(e -> {
+            System.out.println(formState);
+            if (formState == formStateEnum.Idle || formState == formStateEnum.Viewing) {
+                JOptionPane.showMessageDialog(null, "Choose an operation (Add/Edit) first!", "Error",
+                        JOptionPane.ERROR_MESSAGE);
+                return;
             }
-        });
 
-        deleteMemberButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                int selectedRow = tblMembers.getSelectedRow();
-                if (selectedRow != -1) {
-                    memberTableModel.removeRow(selectedRow);
-                } else {
-                    JOptionPane.showMessageDialog(MembersWindow.this, "Please select a member to delete.");
-                }
+            if (!validateForm()) {
+                JOptionPane.showMessageDialog(null, "Please correct the input errors!", "Validation Error",
+                        JOptionPane.ERROR_MESSAGE);
+                return;
             }
+
+            if (formState == formStateEnum.New) {
+                LibraryMember newMember = createMemberFromForm();
+                dataAccess.saveNewMember(newMember);
+                memberTableModel.addRow(new Object[]{
+                        newMember.getMemberId(),
+                        newMember.getFirstName(),
+                        newMember.getLastName(),
+                        newMember.getTelephone(),
+                        newMember.getAddress().toString()
+                });
+                JOptionPane.showMessageDialog(null, "Member added successfully.");
+            } else if (formState == formStateEnum.Editing) {
+                LibraryMember updatedMember = createMemberFromForm();
+                dataAccess.updateMember(updatedMember);
+                updateMemberInTable(updatedMember);
+                JOptionPane.showMessageDialog(null, "Member updated successfully.");
+            }
+
+            formState = formStateEnum.Viewing;
+            setFormEnabled(false);
         });
     }
 
@@ -106,35 +150,42 @@ public class MembersWindow extends JFrame {
                     member.getTelephone(),
                     member.getAddress().toString()
             });
+            memberIdCounter = Math.max(memberIdCounter, Integer.parseInt(member.getMemberId()) + 1);
         }
     }
 
-    private void saveMember(LibraryMember existingMember) {
+    private boolean validateForm() {
+        String phonePattern = "\\d{3}-\\d{3}-\\d{4}";
+        String zipPattern = "\\d{5}";
+
+        if (txtFirstName.getText().isEmpty() || txtLastName.getText().isEmpty() ||
+                txtPhone.getText().isEmpty() || txtStreet.getText().isEmpty() ||
+                txtCity.getText().isEmpty() || txtState.getText().isEmpty() ||
+                txtZip.getText().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "All fields must be filled.");
+            return false;
+        }
+
+        if (!Pattern.matches(phonePattern, txtPhone.getText())) {
+            JOptionPane.showMessageDialog(this, "Phone number must be in the format (123) 456-7890.");
+            return false;
+        }
+
+        if (!Pattern.matches(zipPattern, txtZip.getText())) {
+            JOptionPane.showMessageDialog(this, "ZIP code must be a 5-digit number.");
+            return false;
+        }
+
+        return true;
+    }
+
+    private LibraryMember createMemberFromForm() {
         String memberId = txtMemberId.getText();
         String firstName = txtFirstName.getText();
         String lastName = txtLastName.getText();
         String phone = txtPhone.getText();
-        String street = txtStreet.getText();
-        String city = txtCity.getText();
-        String state = txtState.getText();
-        String zip = txtZip.getText();
-
-        if (!memberId.isEmpty() && !firstName.isEmpty() && !lastName.isEmpty() && !phone.isEmpty() &&
-                !street.isEmpty() && !city.isEmpty() && !state.isEmpty() && !zip.isEmpty()) {
-
-            Address address = new Address(street, city, state, zip);
-            LibraryMember newMember = new LibraryMember(memberId, firstName, lastName, phone, address);
-
-            if (existingMember != null) { // Edit existing member
-                updateMemberInTable(newMember);
-            } else { // Add new member
-                memberTableModel.addRow(new Object[]{newMember.getMemberId(), newMember.getFirstName(),
-                        newMember.getLastName(), newMember.getTelephone(), newMember.getAddress().toString()});
-            }
-            clearForm();
-        } else {
-            JOptionPane.showMessageDialog(this, "Please fill all fields!");
-        }
+        Address address = new Address(txtStreet.getText(), txtCity.getText(), txtState.getText(), txtZip.getText());
+        return new LibraryMember(memberId, firstName, lastName, phone, address);
     }
 
     private void populateForm(LibraryMember member) {
@@ -167,28 +218,36 @@ public class MembersWindow extends JFrame {
         String phone = (String) memberTableModel.getValueAt(selectedRow, 3);
         String addressString = (String) memberTableModel.getValueAt(selectedRow, 4);
 
-        Address address = new Address("Street", "City", "State", "Zip");
+        String[] addressParts = addressString.split(", ");
+        String street = addressParts.length > 0 ? addressParts[0] : "";
+        String city = addressParts.length > 1 ? addressParts[1] : "";
+        String state = addressParts.length > 2 ? addressParts[2] : "";
+        String zip = addressParts.length > 3 ? addressParts[3] : "";
+
+        Address address = new Address(street, city, state, zip);
 
         return new LibraryMember(memberId, firstName, lastName, phone, address);
     }
 
     private void updateMemberInTable(LibraryMember member) {
-        for (int i = 0; i < memberTableModel.getRowCount(); i++) {
-            if (memberTableModel.getValueAt(i, 0).equals(member.getMemberId())) {
-                memberTableModel.setValueAt(member.getFirstName(), i, 1);
-                memberTableModel.setValueAt(member.getLastName(), i, 2);
-                memberTableModel.setValueAt(member.getTelephone(), i, 3);
-                memberTableModel.setValueAt(member.getAddress().toString(), i, 4);
-                break;
-            }
-        }
+        memberTableModel.setValueAt(member.getFirstName(), itemIndex, 1);
+        memberTableModel.setValueAt(member.getLastName(), itemIndex, 2);
+        memberTableModel.setValueAt(member.getTelephone(), itemIndex, 3);
+        memberTableModel.setValueAt(member.getAddress().toString(), itemIndex, 4);
+    }
+
+    private void setFormEnabled(boolean enabled) {
+        txtFirstName.setEnabled(enabled);
+        txtLastName.setEnabled(enabled);
+        txtPhone.setEnabled(enabled);
+        txtStreet.setEnabled(enabled);
+        txtCity.setEnabled(enabled);
+        txtState.setEnabled(enabled);
+        txtZip.setEnabled(enabled);
+        txtMemberId.setEnabled(false);
     }
 
     public static void main(String[] args) {
-        EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                MembersWindow mf = new MembersWindow();
-            }
-        });
+        EventQueue.invokeLater(() -> new MembersWindow());
     }
 }
