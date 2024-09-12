@@ -132,6 +132,7 @@ public class BooksWindow extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 clearForm();
+                itemIndex = -1;
                 setPanelEnabled(frmBook,false);
                 formState = formStateEnum.Idle;
             }
@@ -258,16 +259,14 @@ public class BooksWindow extends JFrame {
         loadAuthors(new ArrayList<>());
         lstAuthors.clearSelection();
         tblBooks.clearSelection();
-        itemIndex = -1;
     }
 
     private void showEditAuthorDialog(Author author, Integer _index) {
-        System.out.println("--------------------Index"+_index);
         authorFormState = author==null?formStateEnum.New : formStateEnum.Editing;
         // Create a new JDialog
         JDialog dialog = new JDialog(this, author!=null?"Edit Author":"Add Author", true);  // Modal dialog
         dialog.setSize(400, 500);
-        dialog.setLayout(new GridLayout(9, 2, 5, 25));  // 9 rows and 2 columns for labels and input fields
+        dialog.setLayout(new GridLayout(10, 2, 5, 25));  // 9 rows and 2 columns for labels and input fields
 
         // Input fields for Author details
         JLabel lblFirstName = new JLabel("First Name:");
@@ -295,6 +294,9 @@ public class BooksWindow extends JFrame {
         JLabel lblBio = new JLabel("Short Bio:");
         JTextArea txtBio = new JTextArea(author!=null?author.getBio():"",2, 20);  // Use a JTextArea for bio
 
+        JLabel lblCredentials = new JLabel("Credentials:");
+        JCheckBox chlCredentials = new JCheckBox("",author!=null?author.getCredentials(): false);  // Use a JTextArea for bio
+
         // Add components to the dialog
         dialog.add(lblFirstName);
         dialog.add(txtFirstName);
@@ -316,6 +318,10 @@ public class BooksWindow extends JFrame {
         // Bio field
         dialog.add(lblBio);
         dialog.add(txtBio);
+
+        // Credentials field
+        dialog.add(lblCredentials);
+        dialog.add(chlCredentials);
 
         // Buttons
         JButton btnSubmit = new JButton("Submit");
@@ -341,14 +347,14 @@ public class BooksWindow extends JFrame {
                 if(authorFormState==formStateEnum.New) {
                     // Create a new Address and Author object
                     Address address = new Address(street, city, state, zip);
-                    Author newAuthor = new Author(firstName, lastName, telephone, address, bio);
+                    Author newAuthor = new Author(firstName, lastName, telephone, address, bio, chlCredentials.isSelected());
 
                     // Add the new author to the JList (assuming you are using authorListModel for the JList)
                     authors.add(newAuthor);
                     authorListModel.addElement(newAuthor);  // Add the author to the list
                 } else {
                     Address address = new Address(street, city, state, zip);
-                    Author _author = new Author(firstName, lastName, telephone, address, bio);
+                    Author _author = new Author(firstName, lastName, telephone, address, bio, chlCredentials.isSelected());
                     System.out.println("+++++++++++++++"+_index);
                     authors.set(_index, _author);
                     loadAuthors(authors);
@@ -399,7 +405,6 @@ public class BooksWindow extends JFrame {
 
         // Add a new copy
         btnAdd.addActionListener(e -> {
-            int newCopyNum = book.getNumCopies() + 1;  // Increment copy number
             BookCopy newCopy = book.addCopy();
             copyTableModel.addRow(new Object[]{newCopy.getCopyNum(), "Yes"});
             dataAccess.updateBook(book);
