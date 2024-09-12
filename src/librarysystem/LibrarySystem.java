@@ -29,7 +29,7 @@ public class LibrarySystem extends JFrame implements LibWindow {
 	JMenu librarianMenu;
 	JMenu adminMenu;
 
-	JMenuItem login, chechoutBoook,  allBookIds, allMemberIds, oneBook;
+	JMenuItem login, checkoutBook,  allBookIds, allMemberIds, oneBook;
     String pathToImage;
 	String userName ;
 	Auth userRole;
@@ -118,7 +118,7 @@ public class LibrarySystem extends JFrame implements LibWindow {
 		menuBar.add(adminMenu);
 		login = new JMenuItem("Change User");
 		login.addActionListener(new LoginListener());
-		chechoutBoook = new JMenuItem("Checkout Book");
+		checkoutBook = new JMenuItem("Checkout Book");
 		allBookIds = new JMenuItem("Admin Boooks");
 		allBookIds.addActionListener(new AllBookIdsListener());
 		oneBook = new JMenuItem("Add copies");
@@ -128,7 +128,7 @@ public class LibrarySystem extends JFrame implements LibWindow {
 		adminMenu.add(allMemberIds);
 		adminMenu.add(allBookIds);
 		adminMenu.add(oneBook);
-		librarianMenu.add(chechoutBoook);
+		librarianMenu.add(checkoutBook);
     }
     
     class LoginListener implements ActionListener {
