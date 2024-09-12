@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 
+import javax.security.auth.login.LoginException;
 import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -19,6 +20,7 @@ import javax.swing.JOptionPane;
 import business.ControllerInterface;
 
 import business.SystemController;
+import dataaccess.Auth;
 
 
 public class LoginWindow extends JFrame implements LibWindow {
@@ -46,7 +48,7 @@ public class LoginWindow extends JFrame implements LibWindow {
 	
 	
 	
-	
+	private ControllerInterface ci = new SystemController();
 	public boolean isInitialized() {
 		return isInitialized;
 	}
@@ -57,11 +59,13 @@ public class LoginWindow extends JFrame implements LibWindow {
 	public void clear() {
 		messageBar.setText("");
 	}
-	
+	String currentUser;
+	Auth currentAccess = Auth.BOTH;
 	/* This class is a singleton */
     private LoginWindow () {}
     
-    public void init() {     		
+    public void init() {
+			if (isInitialized) return;
     		mainPanel = new JPanel();
     		defineUpperHalf();
     		defineMiddleHalf();
@@ -178,16 +182,56 @@ public class LoginWindow extends JFrame implements LibWindow {
     	}
     	
     	private void addBackButtonListener(JButton butn) {
-    		butn.addActionListener(evt -> {
-    			LibrarySystem.hideAllWindows();
-    			LibrarySystem.INSTANCE.setVisible(true);
-    		});
+			butn.addActionListener(evt -> {
+				backButtonAction();
+			});
     	}
-    	
+
+		private void backButtonAction() {
+
+				LibrarySystem.INSTANCE.userName = this.currentUser;
+				LibrarySystem.INSTANCE.userRole = this.currentAccess;
+				LibrarySystem.INSTANCE.updateUI();
+				username.setText(null);
+				password.setText(null);
+				this.repaint();
+
+				LibrarySystem.hideAllWindows();
+				LibrarySystem.INSTANCE.setVisible(true);
+			}
+
+			void tryLogin(){
+			String newUser = this.username.getText();
+			if (newUser.isEmpty()){
+				JOptionPane.showMessageDialog(this, "username can't be empty",
+						"Failed login",JOptionPane.ERROR_MESSAGE);
+				return;
+			}
+			String pass	= this.password.getText();
+			if (pass.isEmpty()){
+				JOptionPane.showMessageDialog(this, "Password can't be empty",
+						"Failed login",JOptionPane.ERROR_MESSAGE);
+				return;
+			}
+			try {
+				ci.login(newUser, pass);
+				this.currentAccess = ci.getCurrentAuth();
+				this.currentUser = newUser;
+				JOptionPane.showMessageDialog(this, newUser + " is now logged in ",
+						"Successful Login", JOptionPane.INFORMATION_MESSAGE);
+				backButtonAction();
+
+
+			} catch (business.LoginException e) {
+				JOptionPane.showMessageDialog(this, e.getMessage(),
+						"Failed Login",JOptionPane.ERROR_MESSAGE);
+			}
+
+		}
     	private void addLoginButtonListener(JButton butn) {
     		butn.addActionListener(evt -> {
-    			JOptionPane.showMessageDialog(this,"Successful Login");
-    				
+
+                INSTANCE.tryLogin();
     		});
     	}
 	

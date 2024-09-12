@@ -10,8 +10,7 @@ import dataaccess.DataAccessFacade;
 import dataaccess.User;
 
 public class SystemController implements ControllerInterface {
-	public static Auth currentAuth = null;
-	
+	private Auth currentAuth;
 	public void login(String id, String password) throws LoginException {
 		DataAccess da = new DataAccessFacade();
 		HashMap<String, User> map = da.readUserMap();
@@ -25,6 +24,11 @@ public class SystemController implements ControllerInterface {
 		currentAuth = map.get(id).getAuthorization();
 		
 	}
+
+	public Auth getCurrentAuth() {
+		return currentAuth;
+	}
+
 	@Override
 	public List<String> allMemberIds() {
 		DataAccess da = new DataAccessFacade();
