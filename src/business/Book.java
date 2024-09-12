@@ -44,12 +44,38 @@ final public class Book implements Serializable, Cloneable {
 		return retVal;
 		
 	}
-	
-	public void addCopy() {
+
+	public BookCopy addCopy() {
+		// Find the maximum copy number in the current array of copies
+		int maxCopyNum = 0;
+		for (BookCopy copy : copies) {
+			if (copy.getCopyNum() > maxCopyNum) {
+				maxCopyNum = copy.getCopyNum();
+			}
+		}
+
+		// Create a new array with an additional slot for the new copy
 		BookCopy[] newArr = new BookCopy[copies.length + 1];
 		System.arraycopy(copies, 0, newArr, 0, copies.length);
-		newArr[copies.length] = new BookCopy(this, copies.length +1, true);
+
+		// Add the new copy with copy number maxCopyNum + 1
+		newArr[copies.length] = new BookCopy(this, maxCopyNum + 1, true);
 		copies = newArr;
+
+		// Return the newly added copy
+		return copies[copies.length - 1];
+	}
+
+
+	public void removeCopy(BookCopy copy) {
+		BookCopy[] newCopies = new BookCopy[copies.length - 1];
+		int index = 0;
+		for (BookCopy c : copies) {
+			if (!c.equals(copy)) {
+				newCopies[index++] = c;
+			}
+		}
+		copies = newCopies;
 	}
 	
 	
@@ -77,6 +103,16 @@ final public class Book implements Serializable, Cloneable {
 	
 	public int getNumCopies() {
 		return copies.length;
+	}
+
+	public int getAvailableCopies() {
+		int availableCount = 0;
+		for (BookCopy copy : copies) {
+			if (copy.isAvailable()) {
+				availableCount++;
+			}
+		}
+		return availableCount;
 	}
 	
 	public String getTitle() {

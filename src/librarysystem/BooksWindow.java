@@ -31,6 +31,7 @@ public class BooksWindow extends JFrame{
     private JPanel frmBook;
     private JButton newBookButton;
     private JButton saveButton;
+    private JButton btnCopiesMng;
 
     private void createUIComponents() {
         // TODO: place custom component creation code here
@@ -72,7 +73,7 @@ public class BooksWindow extends JFrame{
         books = controller.allBooks();
 
         // Table to display the books
-        bookTableModel = new DefaultTableModel(new String[]{"ISBN", "Title", "Authors", "Copies"}, 0);
+        bookTableModel = new DefaultTableModel(new String[]{"ISBN", "Title", "Authors","Max Checkout len.", "Available Copies"}, 0);
         tblBooks = new JTable(bookTableModel){
             @Override
             public boolean editCellAt(int row, int column, java.util.EventObject e) {
@@ -205,6 +206,20 @@ public class BooksWindow extends JFrame{
                 }
             }
         });
+        btnCopiesMng.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (itemIndex==-1) {
+                    JOptionPane.showMessageDialog(null, "Please choose a book from the list first!", "Error",
+                            JOptionPane.ERROR_MESSAGE);
+                } else if (formState != formStateEnum.Viewing){
+                    JOptionPane.showMessageDialog(null, "Please cancel or complete the current operation first!", "Error",
+                            JOptionPane.ERROR_MESSAGE);
+                } else {
+                    showCopyManagementDialog(books.get(itemIndex));
+                }
+            }
+        });
     }
 
     // Load books from the SystemController (allBooks method) and populate the table
@@ -213,7 +228,7 @@ public class BooksWindow extends JFrame{
         bookTableModel.setRowCount(0);
         for (Book book : books) {
             String authors = String.join(", ", book.getAuthors().stream().map(Author::getFullName).toArray(String[]::new));
-            bookTableModel.addRow(new Object[]{book.getIsbn(), book.getTitle(), authors, book.getNumCopies()});
+            bookTableModel.addRow(new Object[]{book.getIsbn(), book.getTitle(), authors,book.getMaxCheckoutLength(), book.getAvailableCopies()+"/"+ book.getNumCopies()});
         }
     }
 
@@ -352,6 +367,66 @@ public class BooksWindow extends JFrame{
         dialog.setLocationRelativeTo(this);  // Center the dialog on the main window
         dialog.setVisible(true);
     }
+
+    private void showCopyManagementDialog(Book book) {
+        JDialog dialog = new JDialog(this, "Manage Copies", true); // Modal dialog
+        dialog.setSize(500, 400);
+        dialog.setLayout(new BorderLayout());
+
+        // Table model for copies
+        DefaultTableModel copyTableModel = new DefaultTableModel(new String[]{"Copy Number", "Available"}, 0);
+        JTable tblCopies = new JTable(copyTableModel);
+
+        // Load copies into table
+        for (BookCopy copy : book.getCopies()) {
+            copyTableModel.addRow(new Object[]{copy.getCopyNum(), copy.isAvailable() ? "Yes" : "No"});
+        }
+
+        JScrollPane scrollPane = new JScrollPane(tblCopies);
+        dialog.add(scrollPane, BorderLayout.CENTER);
+
+        // Buttons for Add, Toggle Availability, and Delete
+        JPanel buttonPanel = new JPanel();
+        JButton btnAdd = new JButton("Add Copy");
+        JButton btnDelete = new JButton("Delete Copy");
+
+        buttonPanel.add(btnAdd);
+        buttonPanel.add(btnDelete);
+
+        dialog.add(buttonPanel, BorderLayout.SOUTH);
+
+        // Add functionality to buttons
+
+        // Add a new copy
+        btnAdd.addActionListener(e -> {
+            int newCopyNum = book.getNumCopies() + 1;  // Increment copy number
+            BookCopy newCopy = book.addCopy();
+            copyTableModel.addRow(new Object[]{newCopy.getCopyNum(), "Yes"});
+            dataAccess.updateBook(book);
+        });
+
+        // Delete a copy if it is not available
+        btnDelete.addActionListener(e -> {
+            int selectedRow = tblCopies.getSelectedRow();
+            if (selectedRow != -1) {
+                BookCopy selectedCopy = book.getCopies()[selectedRow];
+                if (selectedCopy.isAvailable()) {
+                    book.removeCopy(selectedCopy);
+                    copyTableModel.removeRow(selectedRow);
+                    dataAccess.updateBook(book);
+                } else {
+                    JOptionPane.showMessageDialog(dialog, "Only available copies can be deleted.");
+                }
+            } else {
+                JOptionPane.showMessageDialog(dialog, "Please select a copy to delete.");
+            }
+        });
+
+        // Show the dialog
+        dialog.setLocationRelativeTo(this);
+        dialog.setVisible(true);
+    }
+
 
 
     public static void main(String[] args) {
