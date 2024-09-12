@@ -28,27 +28,20 @@ public class MembersWindow extends JFrame {
     private JButton addMemberButton;
     private JButton saveButton;
 
-    // Services
     private DataAccess dataAccess;
     private ControllerInterface controller;
 
     private DefaultTableModel memberTableModel;
 
     public MembersWindow() {
-        // Default visibility is false. You have enabled visibility true
         setVisible(true);
-        // Terminates the Application when the frame is closed.
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setContentPane(mainPnl);
         setTitle("Members Management");
-        // Provide the frame width and height
         setSize(800, 400);
-        // Make your screen center
         setLocationRelativeTo(null);
-        setResizable(false); // If you wish
-        // Data
+        setResizable(false);
         controller = new SystemController();
-        // Table to display the members
         memberTableModel = new DefaultTableModel(new String[]{"Member ID", "First Name", "Last Name", "Phone", "Address"}, 0);
         tblMembers = new JTable(memberTableModel) {
             @Override
@@ -58,7 +51,6 @@ public class MembersWindow extends JFrame {
         };
         tblMembers.setCellSelectionEnabled(false);
         tblMembers.setRowSelectionAllowed(true);
-        // Load Members
         loadMembers();
 
         tblMembersScroll.setViewportView(tblMembers);
@@ -104,9 +96,8 @@ public class MembersWindow extends JFrame {
         });
     }
 
-    // Load members from the SystemController (allMembers method) and populate the table
     private void loadMembers() {
-        List<LibraryMember> members = controller.allMembers(); // Use the allMembers method from SystemController
+        List<LibraryMember> members = controller.allMembers();
         for (LibraryMember member : members) {
             memberTableModel.addRow(new Object[]{
                     member.getMemberId(),
@@ -118,7 +109,6 @@ public class MembersWindow extends JFrame {
         }
     }
 
-    // Save or update member data based on the current form inputs
     private void saveMember(LibraryMember existingMember) {
         String memberId = txtMemberId.getText();
         String firstName = txtFirstName.getText();
@@ -129,7 +119,6 @@ public class MembersWindow extends JFrame {
         String state = txtState.getText();
         String zip = txtZip.getText();
 
-        // Validation check
         if (!memberId.isEmpty() && !firstName.isEmpty() && !lastName.isEmpty() && !phone.isEmpty() &&
                 !street.isEmpty() && !city.isEmpty() && !state.isEmpty() && !zip.isEmpty()) {
 
@@ -142,13 +131,12 @@ public class MembersWindow extends JFrame {
                 memberTableModel.addRow(new Object[]{newMember.getMemberId(), newMember.getFirstName(),
                         newMember.getLastName(), newMember.getTelephone(), newMember.getAddress().toString()});
             }
-            clearForm(); // Clear the form after saving
+            clearForm();
         } else {
             JOptionPane.showMessageDialog(this, "Please fill all fields!");
         }
     }
 
-    // Populate the form fields with the selected member's data
     private void populateForm(LibraryMember member) {
         txtMemberId.setText(member.getMemberId());
         txtFirstName.setText(member.getFirstName());
@@ -160,7 +148,6 @@ public class MembersWindow extends JFrame {
         txtZip.setText(member.getAddress().getZip());
     }
 
-    // Clear all form fields
     private void clearForm() {
         txtMemberId.setText("");
         txtFirstName.setText("");
@@ -180,8 +167,7 @@ public class MembersWindow extends JFrame {
         String phone = (String) memberTableModel.getValueAt(selectedRow, 3);
         String addressString = (String) memberTableModel.getValueAt(selectedRow, 4);
 
-        // Address parsing based on your Address.toString() format
-        Address address = new Address("Street", "City", "State", "Zip"); // Replace with correct parsing logic
+        Address address = new Address("Street", "City", "State", "Zip");
 
         return new LibraryMember(memberId, firstName, lastName, phone, address);
     }
@@ -199,11 +185,6 @@ public class MembersWindow extends JFrame {
     }
 
     public static void main(String[] args) {
-        /*
-        While it is not mandatory to use EventQueue.invokeLater,
-        it is a best practice for all Swing applications to ensure
-        thread safety and avoid potential concurrency issues.
-        */
         EventQueue.invokeLater(new Runnable() {
             public void run() {
                 MembersWindow mf = new MembersWindow();
