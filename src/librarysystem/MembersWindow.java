@@ -12,7 +12,9 @@ import java.awt.event.ActionListener;
 import java.util.List;
 import java.util.regex.Pattern;
 
-public class MembersWindow extends JFrame {
+public class MembersWindow extends JFrame implements LibWindow{
+    public static final MembersWindow INSTANCE = new MembersWindow();
+    private boolean isInitialized = false;
     private JTextField txtMemberId;
     private JTextField txtFirstName;
     private JTextField txtLastName;
@@ -41,7 +43,7 @@ public class MembersWindow extends JFrame {
     private int itemIndex = -1;
     private int memberIdCounter = 1;
 
-    public MembersWindow() {
+    public void setMembersWindow() {
         setVisible(true);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setContentPane(mainPnl);
@@ -140,6 +142,20 @@ public class MembersWindow extends JFrame {
         });
     }
 
+    @Override
+    public void init() {
+        if(isInitialized) return;
+        setMembersWindow();
+        pack();
+        isInitialized = true;
+    }
+
+    public boolean isInitialized() {
+        return isInitialized;
+    }
+    public void isInitialized(boolean val) {
+        isInitialized = val;
+    }
     private void loadMembers() {
         List<LibraryMember> members = controller.allMembers();
         for (LibraryMember member : members) {
@@ -248,6 +264,17 @@ public class MembersWindow extends JFrame {
     }
 
     public static void main(String[] args) {
-        EventQueue.invokeLater(() -> new MembersWindow());
+    /*
+    While it is not mandatory to use EventQueue.invokeLater,
+    it is a best practice for all Swing applications to ensure
+    thread safety and avoid potential concurrency issues.
+    */
+        EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                MembersWindow mf = MembersWindow.INSTANCE;
+                mf.init();
+                mf.setVisible(true);
+            }
+        });
     }
 }

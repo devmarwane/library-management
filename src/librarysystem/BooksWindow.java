@@ -15,7 +15,9 @@ import java.util.List;
 
 import static librarysystem.Util.setPanelEnabled;
 
-public class BooksWindow extends JFrame {
+public class BooksWindow extends JFrame implements LibWindow{
+    public static final BooksWindow INSTANCE = new BooksWindow();
+    private boolean isInitialized = false;
     private JTextField txtIsbn;
     private JTextField txtTitle;
     private JRadioButton rdBtn7days;
@@ -35,6 +37,28 @@ public class BooksWindow extends JFrame {
 
     private void createUIComponents()   {
         // TODO: place custom component creation code here
+    }
+
+    @Override
+    public void init() {
+        if(isInitialized) return;
+        setBooksWindow();
+        pack();
+        /*setContentPane(mainPnl);
+        setTitle("Books management");
+        // Provide the frame width and height
+        setSize(800, 400);
+        // Make your screen center
+        setLocationRelativeTo(null);
+        setResizable(false);*/ // If you wish
+        isInitialized = true;
+    }
+
+    public boolean isInitialized() {
+        return isInitialized;
+    }
+    public void isInitialized(boolean val) {
+        isInitialized = val;
     }
 
     enum formStateEnum{
@@ -57,18 +81,11 @@ public class BooksWindow extends JFrame {
     private DefaultTableModel bookTableModel;
     private DefaultListModel<Author> authorListModel;  // Model for JList to display authors
 
-    public BooksWindow() {
-        // Default visibility is false. You have enabled visibility true
-        setVisible(true);
+    public void setBooksWindow() {
         // Terminates the Application when the frame is closed.
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
+
         setContentPane(mainPnl);
         setTitle("Books management");
-        // Provide the frame width and height
-        setSize(800, 400);
-        // Make your screen center
-        setLocationRelativeTo(null);
-        setResizable(false);// If you wish
         //Load books
         books = controller.allBooks();
 
@@ -429,7 +446,7 @@ public class BooksWindow extends JFrame {
 
         // Show the dialog
         dialog.setLocationRelativeTo(this);
-        dialog.setVisible(true);
+
     }
 
 
@@ -442,7 +459,9 @@ public class BooksWindow extends JFrame {
     */
         EventQueue.invokeLater(new Runnable() {
             public void run() {
-                BooksWindow mf = new BooksWindow();
+                BooksWindow mf = BooksWindow.INSTANCE;
+                mf.init();
+                mf.setVisible(true);
             }
         });
     }
