@@ -12,9 +12,9 @@ public class CheckoutRecord {
         this.member = member;
         entries = new ArrayList<>();
     }
-    public BookCopy addCheckoutEntry(BookCopy bc){
+    public CheckoutEntry addCheckoutEntry(BookCopy bc){
         CheckoutEntry e = new CheckoutEntry(bc,LocalDate.now());
         entries.add(e);
-        return bc;
+        return e;
     }
 }

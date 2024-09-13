@@ -16,9 +16,10 @@ public class SystemController implements ControllerInterface {
 	private List<Author> authors;
 	private List<LibraryMember> allMembers;
 	private List<Book> allBooks;
+	private DataAccess da;
 
 	public SystemController (){
-		DataAccess da = new DataAccessFacade();
+		da = new DataAccessFacade();
 		userMap = da.readUserMap();
 		allAuthors();
 		allMembers();
@@ -93,11 +94,9 @@ public class SystemController implements ControllerInterface {
 		BookCopy copy = getCopyofBook(isbn);
 		LibraryMember mem = getMemberRecord(memberId);
 		CheckoutRecord checkoutRecord = mem.getCheckoutRecord();
-		checkoutRecord.addCheckoutEntry(copy);
-		//saveEntry();
+		CheckoutEntry entry = checkoutRecord.addCheckoutEntry(copy);
+		return entry;
 
-		//return CheckoutEntry;
-		return null;
 	}
 
 	private LibraryMember getMemberRecord(String memberId) throws LibrarySystemException {
@@ -107,23 +106,26 @@ public class SystemController implements ControllerInterface {
 		if (member != null){
 			return member;
 		} else {
-			throw new LibrarySystemException("No Member");
+			throw new LibrarySystemException("Member " + memberId + " not found");
 		}
 	}
 
 	private BookCopy getCopyofBook(String isbn) throws LibrarySystemException {
+		HashMap<String, Book> books = da.readBooksMap();
+		Book book = books.get(isbn);
 
-		//BookCopy copy = new BookCopy();
-		// @todo look for a copy in allBooks list
-		//return copy;
-		if (allBooks().size()> 0 ) {
-			Book b = allBooks().get(0);
-			if (b.getCopies().length > 0) {
-				return b.getCopy(0);
-			}
-		} else {
-			throw new LibrarySystemException("No book");
+		if (book==null) {
+			throw new LibrarySystemException("The ISBN you entered does not match any book in our system.");
 		}
-		return null;
+
+		if (!book.isAvailable()) {
+			throw new LibrarySystemException("The selected book is unavailable right now.");
+		}
+		BookCopy bookCopy = book.getNextAvailableCopy();
+		bookCopy.changeAvailability();
+
+		da.updateBook(book);
+
+		return bookCopy;
 	}
 }
