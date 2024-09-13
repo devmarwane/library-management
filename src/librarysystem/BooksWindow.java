@@ -10,6 +10,8 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,9 +42,19 @@ public class BooksWindow extends JFrame implements LibWindow{
         // TODO: place custom component creation code here
     }
 
+
+
     @Override
     public void init() {
-        if(isInitialized) return;
+        if(isInitialized){
+            books = controller.allBooks();
+            loadBooks();
+            clearForm();
+            itemIndex = -1;
+            setPanelEnabled(frmBook,false);
+            formState = formStateEnum.Idle;
+            return;
+        }
         setBooksWindow();
         pack();
         /*setContentPane(mainPnl);
@@ -52,6 +64,8 @@ public class BooksWindow extends JFrame implements LibWindow{
         // Make your screen center
         setLocationRelativeTo(null);
         setResizable(false);*/ // If you wish
+
+
         isInitialized = true;
     }
 
@@ -180,7 +194,7 @@ public class BooksWindow extends JFrame implements LibWindow{
         saveButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                System.out.println(formState);
+                //System.out.println(formState);
                 if (formState == formStateEnum.Idle || formState == formStateEnum.Viewing){
                     JOptionPane.showMessageDialog(null, "Choose an operation (Add/Edit) first!", "Error",
                             JOptionPane.ERROR_MESSAGE);
@@ -199,6 +213,7 @@ public class BooksWindow extends JFrame implements LibWindow{
                     itemIndex = (int) books.stream().count()-1;
                     setPanelEnabled(frmBook, false);
                     dataAccess.saveNewBook(book);
+                    JOptionPane.showMessageDialog(null, "Book added successfully.");
                 }else if (formState == formStateEnum.Editing){
                     int maxCheckout = rdBtn7days.isSelected()?7:21;
                     Book _updatedBook = new Book(txtIsbn.getText(),txtTitle.getText(),maxCheckout,authors);
@@ -207,6 +222,7 @@ public class BooksWindow extends JFrame implements LibWindow{
                     dataAccess.updateBook(_updatedBook);
                     formState = formStateEnum.Viewing;
                     setPanelEnabled(frmBook, false);
+                    JOptionPane.showMessageDialog(null, "Book updated successfully.");
                 }
 
             }
@@ -247,12 +263,20 @@ public class BooksWindow extends JFrame implements LibWindow{
             }
         });
 
+        // Set default close operation to DO_NOTHING_ON_CLOSE so it doesn't close automatically
+        INSTANCE.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        INSTANCE.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                closeWindow();
+            }
+        });
+
     }
 
     private void closeWindow() {
         LibrarySystem.INSTANCE.updateUI();
         this.repaint();
-
         LibrarySystem.hideAllWindows();
         LibrarySystem.INSTANCE.setVisible(true);
     }
@@ -437,9 +461,13 @@ public class BooksWindow extends JFrame implements LibWindow{
             }
 
             dialog.dispose();  // Close the dialog
+            lstAuthors.clearSelection();
         });
 
-        btnCancel.addActionListener(e -> dialog.dispose());  // Close the dialog
+        btnCancel.addActionListener(e -> {
+            dialog.dispose();
+            lstAuthors.clearSelection();
+        });
 
         // Show the dialog
         dialog.setLocationRelativeTo(this);  // Center the dialog on the main window
@@ -481,6 +509,7 @@ public class BooksWindow extends JFrame implements LibWindow{
             BookCopy newCopy = book.addCopy();
             copyTableModel.addRow(new Object[]{newCopy.getCopyNum(), "Yes"});
             dataAccess.updateBook(book);
+            JOptionPane.showMessageDialog(null, "The book copy no "+newCopy.getCopyNum()+" has deleted successfully to the book "+book.getTitle()+".");
         });
 
         // Delete a copy if it is not available
@@ -492,6 +521,7 @@ public class BooksWindow extends JFrame implements LibWindow{
                     book.removeCopy(selectedCopy);
                     copyTableModel.removeRow(selectedRow);
                     dataAccess.updateBook(book);
+                    JOptionPane.showMessageDialog(null, "The book copy no "+selectedCopy.getCopyNum()+" has deleted successfully.");
                 } else {
                     JOptionPane.showMessageDialog(dialog, "Only available copies can be deleted.");
                 }
@@ -502,7 +532,7 @@ public class BooksWindow extends JFrame implements LibWindow{
 
         // Show the dialog
         dialog.setLocationRelativeTo(this);
-
+        dialog.setVisible(true);
     }
 
     // Function to validate form inputs, including ISBN uniqueness
