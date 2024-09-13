@@ -5,6 +5,7 @@ import business.ControllerInterface;
 import business.SystemController;
 
 import javax.swing.*;
+import java.awt.*;
 
 public class CheckoutWindow extends JFrame implements LibWindow{
     public static final CheckoutWindow INSTANCE = new CheckoutWindow();
@@ -77,5 +78,16 @@ public class CheckoutWindow extends JFrame implements LibWindow{
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
+    }
+
+    public static void main(String[] args) {
+
+        EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                CheckoutWindow mf = CheckoutWindow.INSTANCE;
+                mf.init();
+                mf.setVisible(true);
+            }
+        });
     }
 }
