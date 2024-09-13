@@ -92,7 +92,7 @@ public class SystemController implements ControllerInterface {
 
 	public LibraryMember checkoutBook( String memberId, String isbn) throws LibrarySystemException {
 
-		LibraryMember mem = getMemberRecord(memberId);
+		LibraryMember mem = getMemberById(memberId);
 		BookCopy copy = getCopyofBook(isbn);
 		mem.addCheckoutEntry(copy);
 		da.updateMember(mem);
@@ -100,7 +100,7 @@ public class SystemController implements ControllerInterface {
 	}
 
 
-	public LibraryMember getMemberRecord(String memberId) throws LibrarySystemException {
+	public LibraryMember getMemberById(String memberId) throws LibrarySystemException {
 		DataAccess da = new DataAccessFacade();
 		HashMap<String, LibraryMember> mems = da.readMemberMap();
 		LibraryMember member = mems.get(memberId);

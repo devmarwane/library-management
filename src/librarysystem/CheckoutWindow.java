@@ -39,7 +39,7 @@ public class CheckoutWindow extends JFrame implements LibWindow{
                 String id = memberID.getText();
                 if (id != null) {
                     try {
-                        lastMember = controller.getMemberRecord(id);
+                        lastMember = controller.getMemberById(id);
 
                     } catch (LibrarySystemException exception) {
                         //Do nothing
