@@ -1,24 +1,29 @@
 package business;
 
-import javax.swing.*;
+import java.io.Serializable;
 import java.time.LocalDate;
 
-public final class CheckoutEntry {
-    private  BookCopy bookcopy;
-    private  LocalDate chekoutDate;
-    private  LocalDate dueDate;
+public final class CheckoutEntry implements Serializable {
+    private  final BookCopy bookcopy;
+    private  final LibraryMember member;
+    private  final LocalDate checkoutDate;
+    private  final LocalDate dueDate;
 
-    CheckoutEntry( BookCopy bookcopy, LocalDate chekoutDate ) {
+    CheckoutEntry( BookCopy bookcopy, LibraryMember member, LocalDate checkoutDate ) {
+        this.member = member;
         this.bookcopy = bookcopy;
-        this.chekoutDate = chekoutDate;
-        this.dueDate = chekoutDate.plusDays(bookcopy.getBook().getMaxCheckoutLength());
+        this.checkoutDate = checkoutDate;
+        this.dueDate = checkoutDate.plusDays(bookcopy.getBook().getMaxCheckoutLength());
+    }
+    public LibraryMember getMember() {
+        return member;
     }
     public BookCopy getBookcopy() {
         return bookcopy;
     }
 
-    public LocalDate getChekoutDate() {
-        return chekoutDate;
+    public LocalDate getCheckoutDate() {
+        return checkoutDate;
     }
 
     public LocalDate getDueDate() {
@@ -26,7 +31,7 @@ public final class CheckoutEntry {
     }
 
     public String toString() {
-        return bookcopy.toString() + "\t" + chekoutDate.toString() + "\t" + dueDate.toString();
+        return bookcopy.toString() + "\t" + checkoutDate.toString() + "\t" + dueDate.toString();
     }
 
 }

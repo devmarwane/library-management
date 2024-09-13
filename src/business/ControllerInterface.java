@@ -1,12 +1,8 @@
 package business;
 
-import java.lang.reflect.Member;
 import java.util.List;
 
-import business.Book;
 import dataaccess.Auth;
-import dataaccess.DataAccess;
-import dataaccess.DataAccessFacade;
 
 public interface ControllerInterface {
 	public Auth getCurrentAuth();
@@ -24,7 +20,7 @@ public interface ControllerInterface {
 	 * @return Ckeckout record containing the copy of the book and the due date
 	 * @throws LibrarySystemException if no copy is available or book or member do not exists
 	 */
-	public CheckoutEntry checkoutBook( String memberId, String isbn)  throws LibrarySystemException;
+	public LibraryMember checkoutBook( String memberId, String isbn) throws LibrarySystemException;
 
 
 }

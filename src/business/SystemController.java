@@ -18,6 +18,7 @@ public class SystemController implements ControllerInterface {
 	private List<Book> allBooks;
 	private DataAccess da;
 
+
 	public SystemController (){
 		da = new DataAccessFacade();
 		userMap = da.readUserMap();
@@ -89,14 +90,15 @@ public class SystemController implements ControllerInterface {
 		System.out.println(a.allAuthors());
 	}
 
-	public CheckoutEntry checkoutBook( String memberId, String isbn) throws LibrarySystemException {
-		//@todo
+	public LibraryMember checkoutBook( String memberId, String isbn) throws LibrarySystemException {
+
 		LibraryMember mem = getMemberRecord(memberId);
 		BookCopy copy = getCopyofBook(isbn);
 		CheckoutRecord checkoutRecord = mem.getCheckoutRecord();
 		CheckoutEntry entry = checkoutRecord.addCheckoutEntry(copy);
-		return entry;
+		return mem;
 	}
+
 
 	private LibraryMember getMemberRecord(String memberId) throws LibrarySystemException {
 		DataAccess da = new DataAccessFacade();

@@ -1,11 +1,15 @@
 package librarysystem;
 
-import business.CheckoutEntry;
-import business.ControllerInterface;
-import business.SystemController;
+import business.*;
+
+import java.util.List;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
 import java.awt.*;
+
+
 
 public class CheckoutWindow extends JFrame implements LibWindow{
     public static final CheckoutWindow INSTANCE = new CheckoutWindow();
@@ -15,13 +19,22 @@ public class CheckoutWindow extends JFrame implements LibWindow{
     private JButton checkoutButton;
     private JButton backToMainButton;
     private JPanel mainPanel;
+    private JTable checkoutHistoryTable;
+    private DefaultTableModel checkoutHistoryTableModel;
     private boolean isInitialized = false;
-
+    LibraryMember member;
 
 
     @Override
+
     public void init() {
         setContentPane(mainPanel);
+        checkoutHistoryTableModel= new DefaultTableModel(new String[]{"Member ID", "Member Name","ISBN",
+                "title","Checkout Date", "Due Date"},1);
+        checkoutHistoryTable.setModel(checkoutHistoryTableModel);
+        checkoutHistoryTable.setVisible(true);
+
+
         setTitle("Checkout a Book");
         addBackButtonListener(backToMainButton);
         addCheckoutButtonListener(checkoutButton);
@@ -55,6 +68,8 @@ public class CheckoutWindow extends JFrame implements LibWindow{
     }
 
     private void checkoutBook() {
+        checkoutRecordToTable();
+
         String newMember = this.memberID.getText();
         if (newMember.isEmpty()){
             JOptionPane.showMessageDialog(this, "member ID is required",
@@ -68,16 +83,37 @@ public class CheckoutWindow extends JFrame implements LibWindow{
             return;
         }
         try {
-            CheckoutEntry entry = controller.checkoutBook(newMember,newisbn);
-            String message = "You have checked out a book!" + "\n" +
-                    "Title: \t" + entry.getBookcopy().getBook().getTitle() + "\n" +
-                    "Chekout Date: \t" + entry.getChekoutDate() + "\n" +
-                    "Due data: \t" + entry.getDueDate();
+            member  = controller.checkoutBook(newMember,newisbn);
+            CheckoutRecord record = member.getCheckoutRecord();
+            CheckoutEntry entry = record.getLastEntry();
+            String message = member.getFullName() + " has checked out a book!" + "\n" +
+                    "Title: \t\t" + entry.getBookcopy().getBook().getTitle() + "\n" +
+                    "Chekout Date: \t" + entry.getCheckoutDate() + "\n" +
+                    "Due date: \t\t" + entry.getDueDate();
 
             JOptionPane.showMessageDialog(this, message, "Successful checkout", JOptionPane.INFORMATION_MESSAGE);
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
+
+    }
+    private void checkoutRecordToTable() {
+        checkoutHistoryTableModel.setColumnIdentifiers(new String[]{"ISBN",
+                "title","Checkout Date", "Due Date"});
+
+        checkoutHistoryTableModel.setRowCount(0);
+        if (member != null){
+            List<CheckoutEntry> entries =  member.getCheckoutRecord().getEntries();
+            for(CheckoutEntry e : entries){
+                checkoutHistoryTableModel.addRow(new Object[]{
+                        e.getBookcopy().getBook().getIsbn(),
+                        e.getBookcopy().getBook().getTitle(),
+                                e.getCheckoutDate(), e.getDueDate()});
+            }
+
+        }
+        checkoutHistoryTableModel.addRow(new String[]{"uno","dos","tres","cuatro"});
+
     }
 
     public static void main(String[] args) {
@@ -87,7 +123,16 @@ public class CheckoutWindow extends JFrame implements LibWindow{
                 CheckoutWindow mf = CheckoutWindow.INSTANCE;
                 mf.init();
                 mf.setVisible(true);
+                mf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             }
         });
+    }
+
+
+    private void createUIComponents() {
+        checkoutHistoryTableModel = new DefaultTableModel(new String[]{"Member ID", "Member Name","ISBN",
+                "title","Checkout Date", "Due Date"},1);
+        checkoutHistoryTable.setModel(checkoutHistoryTableModel);
+        checkoutHistoryTable.setVisible(true);
     }
 }
