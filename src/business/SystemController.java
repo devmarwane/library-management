@@ -99,9 +99,13 @@ public class SystemController implements ControllerInterface {
 		//return CheckoutEntry;
 		return null;
 	}
-	private LibraryMember getMemberRecord(String memberid) throws LibrarySystemException {
-		if (allMembers.size() > 0){
-			return allMembers.get(0);
+
+	private LibraryMember getMemberRecord(String memberId) throws LibrarySystemException {
+		DataAccess da = new DataAccessFacade();
+		HashMap<String, LibraryMember> mems = da.readMemberMap();
+		LibraryMember member = mems.get(memberId);
+		if (member != null){
+			return member;
 		} else {
 			throw new LibrarySystemException("No Member");
 		}
