@@ -24,7 +24,7 @@ public interface ControllerInterface {
 	 * @return Ckeckout record containing the copy of the book and the due date
 	 * @throws LibrarySystemException if no copy is available or book or member do not exists
 	 */
-	public CheckoutEntry checkoutBook(String isbn, String memberId)  throws LibrarySystemException;
+	public CheckoutEntry checkoutBook( String memberId, String isbn)  throws LibrarySystemException;
 
 
 }

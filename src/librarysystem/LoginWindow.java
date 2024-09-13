@@ -217,7 +217,7 @@ public class LoginWindow extends JFrame implements LibWindow {
 				ci.login(newUser, pass);
 				this.currentAccess = ci.getCurrentAuth();
 				this.currentUser = newUser;
-				JOptionPane.showMessageDialog(this, newUser + " is now logged in ",
+				JOptionPane.showMessageDialog(this, "Welcome " + newUser + "  ",
 						"Successful Login", JOptionPane.INFORMATION_MESSAGE);
 				backButtonAction();
 

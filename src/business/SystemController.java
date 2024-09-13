@@ -1,5 +1,6 @@
 package business;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -13,13 +14,14 @@ public class SystemController implements ControllerInterface {
 	private Auth currentAuth;
 	private HashMap<String, User> userMap;
 	private List<Author> authors;
-	private List<LibraryMember> members;
+	private List<LibraryMember> allMembers;
+	private List<Book> allBooks;
 
 	public SystemController (){
 		DataAccess da = new DataAccessFacade();
 		userMap = da.readUserMap();
 		allAuthors();
-		//@todo fill members
+		allMembers();
 	}
 	public void login(String id, String password) throws LoginException {
 		if(!userMap.containsKey(id)) {
@@ -55,17 +57,17 @@ public class SystemController implements ControllerInterface {
 	@Override
 	public List<Book> allBooks() {
 		DataAccess da = new DataAccessFacade();
-		List<Book> retval = new ArrayList<>();
-		retval.addAll(da.readBooksMap().values());
-		return retval;
+		allBooks = new ArrayList<>();
+		allBooks.addAll(da.readBooksMap().values());
+		return allBooks;
 	}
 
 	@Override
 	public List<LibraryMember> allMembers() {
 		DataAccess da = new DataAccessFacade();
-		List<LibraryMember> retval = new ArrayList<>();
-		retval.addAll(da.readMemberMap().values());
-		return retval;
+		allMembers = new ArrayList<>();
+		allMembers.addAll(da.readMemberMap().values());
+		return allMembers;
 	}
 
 	@Override
@@ -86,18 +88,23 @@ public class SystemController implements ControllerInterface {
 		System.out.println(a.allAuthors());
 	}
 
-	public CheckoutEntry checkoutBook(String isbn, String memberId) throws LibrarySystemException {
+	public CheckoutEntry checkoutBook( String memberId, String isbn) throws LibrarySystemException {
 		//@todo
 		BookCopy copy = getCopyofBook(isbn);
 		LibraryMember mem = getMemberRecord(memberId);
-		//addCheckoutEnty(copy,mem);
+		CheckoutRecord checkoutRecord = mem.getCheckoutRecord();
+		checkoutRecord.addCheckoutEntry(copy);
 		//saveEntry();
-		CheckoutEntry e = new CheckoutEntry();
+
 		//return CheckoutEntry;
 		return null;
 	}
-	private LibraryMember getMemberRecord(String memberid){
-		return null;
+	private LibraryMember getMemberRecord(String memberid) throws LibrarySystemException {
+		if (allMembers.size() > 0){
+			return allMembers.get(0);
+		} else {
+			throw new LibrarySystemException("No Member");
+		}
 	}
 
 	private BookCopy getCopyofBook(String isbn) throws LibrarySystemException {
@@ -105,9 +112,14 @@ public class SystemController implements ControllerInterface {
 		//BookCopy copy = new BookCopy();
 		// @todo look for a copy in allBooks list
 		//return copy;
+		if (allBooks().size()> 0 ) {
+			Book b = allBooks().get(0);
+			if (b.getCopies().length > 0) {
+				return b.getCopy(0);
+			}
+		} else {
+			throw new LibrarySystemException("No book");
+		}
 		return null;
-	}
-	private void addCheckoutEnty(BookCopy bc, LibraryMember mem){
-
 	}
 }

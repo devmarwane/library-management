@@ -3,8 +3,6 @@ package librarysystem;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Collections;
-import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -29,7 +27,7 @@ public class LibrarySystem extends JFrame implements LibWindow {
 	JMenu librarianMenu;
 	JMenu adminMenu;
 
-	JMenuItem login, checkoutBook, admBooks, adminMembers;
+	JMenuItem login, checkoutBookM, admBooks, adminMembers;
     String pathToImage;
 	String userName ;
 	Auth userRole;
@@ -122,8 +120,8 @@ public class LibrarySystem extends JFrame implements LibWindow {
 		menuBar.add(adminMenu);
 		login = new JMenuItem("Change User");
 		login.addActionListener(new LoginListener());
-		checkoutBook = new JMenuItem("Checkout Book");
-		checkoutBook.addActionListener(new CheckoutBookListener());
+		checkoutBookM = new JMenuItem("Checkout Book");
+		checkoutBookM.addActionListener(new CheckoutBookListener());
 		admBooks = new JMenuItem("Admin Boooks");
 		admBooks.addActionListener(new AdminBookListener());
 		adminMembers = new JMenuItem("Admin Members");
@@ -131,7 +129,7 @@ public class LibrarySystem extends JFrame implements LibWindow {
 		optionsMenu.add(login);
 		adminMenu.add(adminMembers);
 		adminMenu.add(admBooks);
-		librarianMenu.add(checkoutBook);
+		librarianMenu.add(checkoutBookM);
     }
     
     class LoginListener implements ActionListener {

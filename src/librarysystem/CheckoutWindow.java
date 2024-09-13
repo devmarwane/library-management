@@ -1,11 +1,16 @@
 package librarysystem;
 
+import business.CheckoutEntry;
+import business.ControllerInterface;
+import business.SystemController;
+
 import javax.swing.*;
 
 public class CheckoutWindow extends JFrame implements LibWindow{
     public static final CheckoutWindow INSTANCE = new CheckoutWindow();
-    private JTextField textField1;
-    private JTextField textField2;
+    private static final ControllerInterface controller = new SystemController();
+    private JTextField memberID;
+    private JTextField isbn;
     private JButton checkoutButton;
     private JButton backToMainButton;
     private JPanel mainPanel;
@@ -18,7 +23,7 @@ public class CheckoutWindow extends JFrame implements LibWindow{
         setContentPane(mainPanel);
         setTitle("Checkout a Book");
         addBackButtonListener(backToMainButton);
-        addBackButtonListener(checkoutButton);
+        addCheckoutButtonListener(checkoutButton);
         pack();
         setLocationRelativeTo(null);
         isInitialized(true);
@@ -49,10 +54,21 @@ public class CheckoutWindow extends JFrame implements LibWindow{
     }
 
     private void checkoutBook() {
-        // Validate parameters if fail show messsage and return
-        //
+        String newMember = this.memberID.getText();
+        if (newMember.isEmpty()){
+            JOptionPane.showMessageDialog(this, "member ID is required",
+                    "Failed Checkout",JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        String newisbn	= this.isbn.getText();
+        if (newisbn.isEmpty()){
+            JOptionPane.showMessageDialog(this, "ISBN is required",
+                    "Failed login",JOptionPane.ERROR_MESSAGE);
+            return;
+        }
         try {
-            checkoutBook();
+            CheckoutEntry entry = controller.checkoutBook(newMember,newisbn);
+            JOptionPane.showMessageDialog(this, entry.toString(), "Successful checkout", JOptionPane.INFORMATION_MESSAGE);
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }

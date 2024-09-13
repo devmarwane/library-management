@@ -36,9 +36,9 @@
               <text value="user id"/>
             </properties>
           </component>
-          <component id="7ef0b" class="javax.swing.JTextField" binding="textField1" default-binding="true">
+          <component id="7ef0b" class="javax.swing.JTextField" binding="memberID">
             <constraints>
-              <grid row="0" column="2" row-span="1" col-span="2" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+              <grid row="0" column="2" row-span="1" col-span="2" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="1" use-parent-layout="false">
                 <preferred-size width="150" height="31"/>
               </grid>
             </constraints>
@@ -54,7 +54,7 @@
               <text value="Book ISBN"/>
             </properties>
           </component>
-          <component id="d6dfb" class="javax.swing.JTextField" binding="textField2" default-binding="true">
+          <component id="d6dfb" class="javax.swing.JTextField" binding="isbn">
             <constraints>
               <grid row="1" column="2" row-span="1" col-span="2" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
                 <preferred-size width="150" height="-1"/>

@@ -1,18 +1,14 @@
 package business;
 
 import java.io.Serializable;
-import java.time.LocalDate;
-
-
-import dataaccess.DataAccess;
-import dataaccess.DataAccessFacade;
 
 final public class LibraryMember extends Person implements Serializable {
     private String memberId;
-
+    private CheckoutRecord checkoutRecord;
     public LibraryMember(String memberId, String fname, String lname, String tel, Address add) {
         super(fname, lname, tel, add);
         this.memberId = memberId;
+        this.checkoutRecord = new CheckoutRecord(this);
     }
 
 
@@ -20,6 +16,9 @@ final public class LibraryMember extends Person implements Serializable {
         return memberId;
     }
 
+    public CheckoutRecord getCheckoutRecord() {
+        return checkoutRecord;
+    }
 
 //    public static LibraryMember getLibraryMember(String memberId) {
 //        DataAccess dataAccess = new DataAccessFacade();
