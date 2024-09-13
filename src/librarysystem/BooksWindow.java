@@ -216,7 +216,7 @@ public class BooksWindow extends JFrame implements LibWindow{
                     JOptionPane.showMessageDialog(null, "Book added successfully.");
                 }else if (formState == formStateEnum.Editing){
                     int maxCheckout = rdBtn7days.isSelected()?7:21;
-                    Book _updatedBook = new Book(txtIsbn.getText(),txtTitle.getText(),maxCheckout,authors);
+                    Book _updatedBook = new Book(txtIsbn.getText(),txtTitle.getText(),maxCheckout,authors, currentBook.getCopies());
                     books.set(itemIndex,_updatedBook);
                     loadBooks();
                     dataAccess.updateBook(_updatedBook);
@@ -287,7 +287,7 @@ public class BooksWindow extends JFrame implements LibWindow{
         bookTableModel.setRowCount(0);
         for (Book book : books) {
             String authors = String.join(", ", book.getAuthors().stream().map(Author::getFullName).toArray(String[]::new));
-            bookTableModel.addRow(new Object[]{book.getIsbn(), book.getTitle(), authors,book.getMaxCheckoutLength(), book.getAvailableCopies()+"/"+ book.getNumCopies()});
+            bookTableModel.addRow(new Object[]{book.getIsbn(), book.getTitle(), authors,book.getMaxCheckoutLength(), book.getAvailableCopies()+" / "+ book.getNumCopies()});
         }
     }
 
@@ -509,10 +509,10 @@ public class BooksWindow extends JFrame implements LibWindow{
             BookCopy newCopy = book.addCopy();
             copyTableModel.addRow(new Object[]{newCopy.getCopyNum(), "Yes"});
             dataAccess.updateBook(book);
-            JOptionPane.showMessageDialog(null, "The book copy no "+newCopy.getCopyNum()+" has deleted successfully to the book "+book.getTitle()+".");
+            JOptionPane.showMessageDialog(null, "The book copy no " + newCopy.getCopyNum() + " has been added successfully to the book " + book.getTitle() + ".");
         });
 
-        // Delete a copy if it is not available
+        // Delete a copy if it's available
         btnDelete.addActionListener(e -> {
             int selectedRow = tblCopies.getSelectedRow();
             if (selectedRow != -1) {
@@ -521,7 +521,7 @@ public class BooksWindow extends JFrame implements LibWindow{
                     book.removeCopy(selectedCopy);
                     copyTableModel.removeRow(selectedRow);
                     dataAccess.updateBook(book);
-                    JOptionPane.showMessageDialog(null, "The book copy no "+selectedCopy.getCopyNum()+" has deleted successfully.");
+                    JOptionPane.showMessageDialog(null, "The book copy no " + selectedCopy.getCopyNum() + " has been deleted successfully.");
                 } else {
                     JOptionPane.showMessageDialog(dialog, "Only available copies can be deleted.");
                 }
@@ -530,10 +530,20 @@ public class BooksWindow extends JFrame implements LibWindow{
             }
         });
 
+        // Add a WindowListener to handle actions when the dialog is closing
+        dialog.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                books = controller.allBooks();
+                loadBooks();
+            }
+        });
+
         // Show the dialog
         dialog.setLocationRelativeTo(this);
         dialog.setVisible(true);
     }
+
 
     // Function to validate form inputs, including ISBN uniqueness
     private boolean validateForm() {
