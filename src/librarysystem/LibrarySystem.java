@@ -123,7 +123,7 @@ public class LibrarySystem extends JFrame implements LibWindow {
 		login.addActionListener(new LoginListener());
 		checkoutBookM = new JMenuItem("Checkout Book");
 		checkoutBookM.addActionListener(new CheckoutBookListener());
-		admBooks = new JMenuItem("Admin Boooks");
+		admBooks = new JMenuItem("Admin Books");
 		admBooks.addActionListener(new AdminBookListener());
 		adminMembers = new JMenuItem("Admin Members");
 		adminMembers.addActionListener(new AdminMembersListener());

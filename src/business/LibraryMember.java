@@ -28,11 +28,6 @@ final public class LibraryMember extends Person implements Serializable {
         return checkoutRecord.addCheckoutEntry(bc);
     }
 
-//    public static LibraryMember getLibraryMember(String memberId) {
-//        DataAccess dataAccess = new DataAccessFacade();
-//        return dataAccess.getMemberById(memberId);
-//    }
-
 
     @Override
     public String toString() {
