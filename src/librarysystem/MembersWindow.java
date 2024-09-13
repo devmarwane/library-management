@@ -9,6 +9,8 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -47,7 +49,7 @@ public class MembersWindow extends JFrame implements LibWindow {
 
     public void setMembersWindow() {
         setVisible(true);
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        INSTANCE.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         setContentPane(mainPnl);
         setTitle("Members Management");
         setSize(800, 400);
@@ -70,6 +72,13 @@ public class MembersWindow extends JFrame implements LibWindow {
 
         formState = formStateEnum.Viewing;
         setFormEnabled(false);
+
+        INSTANCE.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                closeWindow();
+            }
+        });
 
         clearFormButton.addActionListener(e -> clearForm());
 
@@ -142,13 +151,7 @@ public class MembersWindow extends JFrame implements LibWindow {
             setFormEnabled(false);
         });
 
-        backButton.addActionListener(e -> {
-            LibrarySystem.INSTANCE.updateUI();
-            this.repaint();
-
-            LibrarySystem.hideAllWindows();
-            LibrarySystem.INSTANCE.setVisible(true);
-        });
+        backButton.addActionListener(e -> closeWindow());
     }
 
     @Override
@@ -165,6 +168,13 @@ public class MembersWindow extends JFrame implements LibWindow {
 
     public void isInitialized(boolean val) {
         isInitialized = val;
+    }
+
+    private void closeWindow() {
+        LibrarySystem.INSTANCE.updateUI();
+        this.repaint();
+        LibrarySystem.hideAllWindows();
+        LibrarySystem.INSTANCE.setVisible(true);
     }
 
     private void loadMembers() {
