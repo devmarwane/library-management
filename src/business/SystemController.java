@@ -91,12 +91,11 @@ public class SystemController implements ControllerInterface {
 
 	public CheckoutEntry checkoutBook( String memberId, String isbn) throws LibrarySystemException {
 		//@todo
-		BookCopy copy = getCopyofBook(isbn);
 		LibraryMember mem = getMemberRecord(memberId);
+		BookCopy copy = getCopyofBook(isbn);
 		CheckoutRecord checkoutRecord = mem.getCheckoutRecord();
 		CheckoutEntry entry = checkoutRecord.addCheckoutEntry(copy);
 		return entry;
-
 	}
 
 	private LibraryMember getMemberRecord(String memberId) throws LibrarySystemException {
@@ -115,11 +114,12 @@ public class SystemController implements ControllerInterface {
 		Book book = books.get(isbn);
 
 		if (book==null) {
-			throw new LibrarySystemException("The ISBN you entered does not match any book in our system.");
+			throw new LibrarySystemException("ISBN " + isbn + " not found");
 		}
 
 		if (!book.isAvailable()) {
-			throw new LibrarySystemException("The selected book is unavailable right now.");
+			throw new LibrarySystemException("No copies of " + book.getTitle() + " (" + isbn +  ")\n" +
+					" are available right now.");
 		}
 		BookCopy bookCopy = book.getNextAvailableCopy();
 		bookCopy.changeAvailability();
