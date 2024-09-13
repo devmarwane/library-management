@@ -68,7 +68,12 @@ public class CheckoutWindow extends JFrame implements LibWindow{
         }
         try {
             CheckoutEntry entry = controller.checkoutBook(newMember,newisbn);
-            JOptionPane.showMessageDialog(this, entry.toString(), "Successful checkout", JOptionPane.INFORMATION_MESSAGE);
+            String message = "You have checked out a book!" + "\n" +
+                    "Title: \t" + entry.getBookcopy().getBook().getTitle() + "\n" +
+                    "Chekout Date: \t" + entry.getChekoutDate() + "\n" +
+                    "Due data: \t" + entry.getDueDate();
+
+            JOptionPane.showMessageDialog(this, message, "Successful checkout", JOptionPane.INFORMATION_MESSAGE);
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }

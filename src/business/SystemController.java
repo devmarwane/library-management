@@ -94,11 +94,9 @@ public class SystemController implements ControllerInterface {
 		BookCopy copy = getCopyofBook(isbn);
 		LibraryMember mem = getMemberRecord(memberId);
 		CheckoutRecord checkoutRecord = mem.getCheckoutRecord();
-		checkoutRecord.addCheckoutEntry(copy);
-		//saveEntry();
+		CheckoutEntry entry = checkoutRecord.addCheckoutEntry(copy);
+		return entry;
 
-		//return CheckoutEntry;
-		return null;
 	}
 
 	private LibraryMember getMemberRecord(String memberId) throws LibrarySystemException {
@@ -108,7 +106,7 @@ public class SystemController implements ControllerInterface {
 		if (member != null){
 			return member;
 		} else {
-			throw new LibrarySystemException("No Member");
+			throw new LibrarySystemException("Member " + memberId + " not found");
 		}
 	}
 
