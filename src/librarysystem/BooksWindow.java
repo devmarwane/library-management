@@ -69,7 +69,7 @@ public class BooksWindow extends JFrame implements LibWindow{
     }
 
     //Services
-    private ControllerInterface controller= new SystemController();
+    private ControllerInterface controller = new SystemController();
     private DataAccess dataAccess = new DataAccessFacade();
 
     private int itemIndex = -1;
@@ -173,6 +173,7 @@ public class BooksWindow extends JFrame implements LibWindow{
                 } else {
                     formState = formStateEnum.Editing;
                     setPanelEnabled(frmBook,true);
+                    txtIsbn.setEnabled(false);
                 }
             }
         });
@@ -186,8 +187,10 @@ public class BooksWindow extends JFrame implements LibWindow{
                     return;
                 }
 
+                if(!validateForm())
+                    return;
+
                 if (formState == formStateEnum.New){
-                    //TODO: validate form
                     int maxCheckout = rdBtn7days.isSelected()?7:21;
                     Book book = new Book(txtIsbn.getText(),txtTitle.getText(),maxCheckout,authors);
                     books.add(book);
@@ -197,8 +200,6 @@ public class BooksWindow extends JFrame implements LibWindow{
                     setPanelEnabled(frmBook, false);
                     dataAccess.saveNewBook(book);
                 }else if (formState == formStateEnum.Editing){
-
-                    //TODO: validate form
                     int maxCheckout = rdBtn7days.isSelected()?7:21;
                     Book _updatedBook = new Book(txtIsbn.getText(),txtTitle.getText(),maxCheckout,authors);
                     books.set(itemIndex,_updatedBook);
@@ -449,6 +450,56 @@ public class BooksWindow extends JFrame implements LibWindow{
 
     }
 
+    // Function to validate form inputs, including ISBN uniqueness
+    private boolean validateForm() {
+        String isbn = txtIsbn.getText().trim();
+        String title = txtTitle.getText().trim();
+        boolean isValid = true;
+
+        String errorMessage="Please fix the following(s) errors :";
+        // Validate ISBN
+        if (isbn.isEmpty()) {
+            errorMessage+="\n- Isbn cannot be empty!";
+            isValid = false;
+        } else if (!isbn.matches("^\\d{2}-\\d{5}$")) {
+            errorMessage+="\n- Isbn must be in the following format 00-00000";
+            isValid = false;
+        } else if (isIsbnDuplicate(isbn) && formState==formStateEnum.New) { // Check ISBN uniqueness only for new books
+            errorMessage+="\n- Isbn already exists! Please enter a unique ISBN.";
+            isValid = false;
+        }
+
+        // Validate title
+        if (title.isEmpty()) {
+            errorMessage+="\n- Title cannot be empty!";
+            isValid = false;
+        }
+
+        // Validate authors
+        if (authors.isEmpty()) {
+            errorMessage+="\n- At least one author must be added!";
+            isValid = false;
+        }
+
+        // Validate max checkout duration (radio buttons)
+        if (!rdBtn7days.isSelected() && !rdBtn21days.isSelected()) {
+            errorMessage+="\n- Please select a checkout duration (7 or 21 days)!";
+            isValid = false;
+        }
+
+        if (!isValid){
+            JOptionPane.showMessageDialog(this, errorMessage, "Validation Error", JOptionPane.ERROR_MESSAGE);
+        }
+
+        return isValid;
+    }
+
+    // Function to check if the entered ISBN is already in the system
+    private boolean isIsbnDuplicate(String isbn) {
+        // Assuming controller.allIsbn() returns a list of all existing ISBNs
+        List<String> allIsbn = controller.allBookIds();
+        return allIsbn.contains(isbn);
+    }
 
 
     public static void main(String[] args) {
