@@ -414,7 +414,7 @@ public class BooksWindow extends JFrame implements LibWindow{
             }
 
             if (!telephone.matches("^(\\+1\\s?)?(\\(\\d{3}\\)|\\d{3})[-.\\s]?\\d{3}[-.\\s]?\\d{4}$")) {  // Assuming a valid telephone number should be 10 digits
-                errorMessage += "\n- Telephone must be 10 digits!";
+                errorMessage += "\n- Invalid Phone number. Please enter a valid 10-digit US phone number.";
                 isValid = false;
             }
 
@@ -509,7 +509,7 @@ public class BooksWindow extends JFrame implements LibWindow{
             BookCopy newCopy = book.addCopy();
             copyTableModel.addRow(new Object[]{newCopy.getCopyNum(), "Yes"});
             dataAccess.updateBook(book);
-            JOptionPane.showMessageDialog(null, "The book copy no " + newCopy.getCopyNum() + " has been added successfully to the book " + book.getTitle() + ".");
+            JOptionPane.showMessageDialog(null, "The book copy number " + newCopy.getCopyNum() + " has been added successfully to the book " + book.getTitle() + ".");
         });
 
         // Delete a copy if it's available
