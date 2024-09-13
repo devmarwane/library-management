@@ -158,7 +158,6 @@ public class BooksWindow extends JFrame implements LibWindow{
             @Override
             public void actionPerformed(ActionEvent e) {
                 showEditAuthorDialog(null, -1);
-                itemIndex = -1;
             }
         });
         editBookButton.addActionListener(new ActionListener() {
@@ -280,40 +279,40 @@ public class BooksWindow extends JFrame implements LibWindow{
     }
 
     private void showEditAuthorDialog(Author author, Integer _index) {
-        authorFormState = author==null?formStateEnum.New : formStateEnum.Editing;
+        authorFormState = author == null ? formStateEnum.New : formStateEnum.Editing;
         // Create a new JDialog
-        JDialog dialog = new JDialog(this, author!=null?"Edit Author":"Add Author", true);  // Modal dialog
+        JDialog dialog = new JDialog(this, author != null ? "Edit Author" : "Add Author", true);  // Modal dialog
         dialog.setSize(400, 500);
         dialog.setLayout(new GridLayout(10, 2, 5, 25));  // 9 rows and 2 columns for labels and input fields
 
         // Input fields for Author details
         JLabel lblFirstName = new JLabel("First Name:");
-        JTextField txtFirstName = new JTextField(author!=null?author.getFirstName():"");
+        JTextField txtFirstName = new JTextField(author != null ? author.getFirstName() : "");
 
         JLabel lblLastName = new JLabel("Last Name:");
-        JTextField txtLastName = new JTextField(author!=null?author.getLastName():"");
+        JTextField txtLastName = new JTextField(author != null ? author.getLastName() : "");
 
         JLabel lblTelephone = new JLabel("Telephone:");
-        JTextField txtTelephone = new JTextField(author!=null?author.getTelephone():"");
+        JTextField txtTelephone = new JTextField(author != null ? author.getTelephone() : "");
 
         // Address details
         JLabel lblStreet = new JLabel("Street:");
-        JTextField txtStreet = new JTextField(author!=null?author.getAddress().getStreet():"");
+        JTextField txtStreet = new JTextField(author != null ? author.getAddress().getStreet() : "");
 
         JLabel lblCity = new JLabel("City:");
-        JTextField txtCity = new JTextField(author!=null?author.getAddress().getCity():"");
+        JTextField txtCity = new JTextField(author != null ? author.getAddress().getCity() : "");
 
         JLabel lblState = new JLabel("State:");
-        JTextField txtState = new JTextField(author!=null?author.getAddress().getState():"");
+        JTextField txtState = new JTextField(author != null ? author.getAddress().getState() : "");
 
         JLabel lblZip = new JLabel("ZIP Code:");
-        JTextField txtZip = new JTextField(author!=null?author.getAddress().getZip():"");
+        JTextField txtZip = new JTextField(author != null ? author.getAddress().getZip() : "");
 
         JLabel lblBio = new JLabel("Short Bio:");
-        JTextArea txtBio = new JTextArea(author!=null?author.getBio():"",2, 20);  // Use a JTextArea for bio
+        JTextArea txtBio = new JTextArea(author != null ? author.getBio() : "", 2, 20);  // Use a JTextArea for bio
 
         JLabel lblCredentials = new JLabel("Credentials:");
-        JCheckBox chlCredentials = new JCheckBox("",author!=null?author.getCredentials(): false);  // Use a JTextArea for bio
+        JCheckBox chlCredentials = new JCheckBox("", author != null ? author.getCredentials() : false);  // Use a JCheckBox for credentials
 
         // Add components to the dialog
         dialog.add(lblFirstName);
@@ -350,39 +349,77 @@ public class BooksWindow extends JFrame implements LibWindow{
         // Add functionality to the buttons
         btnSubmit.addActionListener(e -> {
             // Capture input data
-            String firstName = txtFirstName.getText();
-            String lastName = txtLastName.getText();
-            String telephone = txtTelephone.getText();
-            String street = txtStreet.getText();
-            String city = txtCity.getText();
-            String state = txtState.getText();
-            String zip = txtZip.getText();
-            String bio = txtBio.getText();
+            String firstName = txtFirstName.getText().trim();
+            String lastName = txtLastName.getText().trim();
+            String telephone = txtTelephone.getText().trim();
+            String street = txtStreet.getText().trim();
+            String city = txtCity.getText().trim();
+            String state = txtState.getText().trim();
+            String zip = txtZip.getText().trim();
+            String bio = txtBio.getText().trim();
 
-            if (!firstName.isEmpty() && !lastName.isEmpty() && !telephone.isEmpty() && !street.isEmpty()
-                    && !city.isEmpty() && !state.isEmpty() && !zip.isEmpty() && !bio.isEmpty()) {
+            // Accumulate validation errors in a single message
+            String errorMessage = "Please fix the following(s) errors:";
+            boolean isValid = true;
 
-                if(authorFormState==formStateEnum.New) {
-                    // Create a new Address and Author object
-                    Address address = new Address(street, city, state, zip);
-                    Author newAuthor = new Author(firstName, lastName, telephone, address, bio, chlCredentials.isSelected());
-
-                    // Add the new author to the JList (assuming you are using authorListModel for the JList)
-                    authors.add(newAuthor);
-                    authorListModel.addElement(newAuthor);  // Add the author to the list
-                } else {
-                    Address address = new Address(street, city, state, zip);
-                    Author _author = new Author(firstName, lastName, telephone, address, bio, chlCredentials.isSelected());
-                    System.out.println("+++++++++++++++"+_index);
-                    authors.set(_index, _author);
-                    loadAuthors(authors);
-                }
-
-
-                dialog.dispose();  // Close the dialog
-            } else {
-                JOptionPane.showMessageDialog(dialog, "Please fill all fields!");
+            if (firstName.isEmpty()) {
+                errorMessage += "\n- First name cannot be empty!";
+                isValid = false;
             }
+
+            if (lastName.isEmpty()) {
+                errorMessage += "\n- Last name cannot be empty!";
+                isValid = false;
+            }
+
+            if (!telephone.matches("^(\\+1\\s?)?(\\(\\d{3}\\)|\\d{3})[-.\\s]?\\d{3}[-.\\s]?\\d{4}$")) {  // Assuming a valid telephone number should be 10 digits
+                errorMessage += "\n- Telephone must be 10 digits!";
+                isValid = false;
+            }
+
+            if (street.isEmpty()) {
+                errorMessage += "\n- Street cannot be empty!";
+                isValid = false;
+            }
+
+            if (city.isEmpty()) {
+                errorMessage += "\n- City cannot be empty!";
+                isValid = false;
+            }
+
+            if (state.isEmpty()) {
+                errorMessage += "\n- State cannot be empty!";
+                isValid = false;
+            }
+
+            if (!zip.matches("\\d{5}")) {  // Assuming ZIP code should be 5 digits
+                errorMessage += "\n- ZIP code must be 5 digits!";
+                isValid = false;
+            }
+
+            if (bio.isEmpty()) {
+                errorMessage += "\n- Bio cannot be empty!";
+                isValid = false;
+            }
+
+            // If validation fails, show all errors in one message
+            if (!isValid) {
+                JOptionPane.showMessageDialog(dialog, errorMessage, "Validation Error", JOptionPane.ERROR_MESSAGE);
+                return;  // Stop further processing
+            }
+
+            Address address = new Address(street, city, state, zip);
+            if (authorFormState == formStateEnum.New) {
+                Author newAuthor = new Author(firstName, lastName, telephone, address, bio, chlCredentials.isSelected());
+                authors.add(newAuthor);
+                authorListModel.addElement(newAuthor);  // Add the author to the list
+            } else {
+                Author _author = new Author(firstName, lastName, telephone, address, bio, chlCredentials.isSelected());
+                authors.set(_index, _author);
+                loadAuthors(authors);  // Update the list
+            }
+
+            dialog.dispose();  // Close the dialog
         });
 
         btnCancel.addActionListener(e -> dialog.dispose());  // Close the dialog
@@ -391,6 +428,7 @@ public class BooksWindow extends JFrame implements LibWindow{
         dialog.setLocationRelativeTo(this);  // Center the dialog on the main window
         dialog.setVisible(true);
     }
+
 
     private void showCopyManagementDialog(Book book) {
         JDialog dialog = new JDialog(this, "Manage Copies", true); // Modal dialog
