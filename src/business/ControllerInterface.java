@@ -21,6 +21,6 @@ public interface ControllerInterface {
 	 * @throws LibrarySystemException if no copy is available or book or member do not exists
 	 */
 	public LibraryMember checkoutBook( String memberId, String isbn) throws LibrarySystemException;
-
+	public LibraryMember getMemberRecord(String memberId) throws LibrarySystemException;
 
 }

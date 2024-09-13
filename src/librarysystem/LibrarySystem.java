@@ -68,7 +68,8 @@ public class LibrarySystem extends JFrame implements LibWindow {
 	public  void updateUI() {
 		setTitle(title + " user: " + userName);
 		optionsMenu.setEnabled(true);
-
+		adminMenu.setEnabled(false);
+		librarianMenu.setEnabled(false);
 		switch (userRole) {
 			case Auth.LIBRARIAN:
 				librarianMenu.setEnabled(true);

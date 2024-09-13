@@ -94,13 +94,13 @@ public class SystemController implements ControllerInterface {
 
 		LibraryMember mem = getMemberRecord(memberId);
 		BookCopy copy = getCopyofBook(isbn);
-		CheckoutRecord checkoutRecord = mem.getCheckoutRecord();
-		CheckoutEntry entry = checkoutRecord.addCheckoutEntry(copy);
+		mem.addCheckoutEntry(copy);
+		da.updateMember(mem);
 		return mem;
 	}
 
 
-	private LibraryMember getMemberRecord(String memberId) throws LibrarySystemException {
+	public LibraryMember getMemberRecord(String memberId) throws LibrarySystemException {
 		DataAccess da = new DataAccessFacade();
 		HashMap<String, LibraryMember> mems = da.readMemberMap();
 		LibraryMember member = mems.get(memberId);
