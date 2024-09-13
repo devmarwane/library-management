@@ -32,6 +32,7 @@ public class MembersWindow extends JFrame implements LibWindow {
     private JButton deleteMemberButton;
     private JButton addMemberButton;
     private JButton saveButton;
+    private JButton backButton;
 
     private DataAccess dataAccess = new DataAccessFacade();
     private ControllerInterface controller;
@@ -107,7 +108,6 @@ public class MembersWindow extends JFrame implements LibWindow {
         });
 
         saveButton.addActionListener(e -> {
-            System.out.println(formState);
             if (formState == formStateEnum.Idle || formState == formStateEnum.Viewing) {
                 JOptionPane.showMessageDialog(null, "Choose an operation (Add/Edit) first!", "Error",
                         JOptionPane.ERROR_MESSAGE);
@@ -140,6 +140,14 @@ public class MembersWindow extends JFrame implements LibWindow {
 
             formState = formStateEnum.Viewing;
             setFormEnabled(false);
+        });
+
+        backButton.addActionListener(e -> {
+            LibrarySystem.INSTANCE.updateUI();
+            this.repaint();
+
+            LibrarySystem.hideAllWindows();
+            LibrarySystem.INSTANCE.setVisible(true);
         });
     }
 
