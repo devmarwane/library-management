@@ -34,6 +34,7 @@ public class BooksWindow extends JFrame implements LibWindow{
     private JButton newBookButton;
     private JButton saveButton;
     private JButton btnCopiesMng;
+    private JButton backButton;
 
     private void createUIComponents()   {
         // TODO: place custom component creation code here
@@ -238,6 +239,22 @@ public class BooksWindow extends JFrame implements LibWindow{
                 }
             }
         });
+
+        backButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                closeWindow();
+            }
+        });
+
+    }
+
+    private void closeWindow() {
+        LibrarySystem.INSTANCE.updateUI();
+        this.repaint();
+
+        LibrarySystem.hideAllWindows();
+        LibrarySystem.INSTANCE.setVisible(true);
     }
 
     // Load books from the SystemController (allBooks method) and populate the table
