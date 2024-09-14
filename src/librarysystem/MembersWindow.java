@@ -229,7 +229,7 @@ public class MembersWindow extends JFrame implements LibWindow {
     }
 
     private boolean validateForm() {
-        String phonePattern = "\\d{3}-\\d{3}-\\d{4}";
+        String phonePattern = "^(\\+1\\s?)?(\\(\\d{3}\\)|\\d{3})[-.\\s]?\\d{3}[-.\\s]?\\d{4}$";
         String zipPattern = "\\d{5}";
 
         if (txtFirstName.getText().isEmpty() || txtLastName.getText().isEmpty() ||
@@ -241,7 +241,7 @@ public class MembersWindow extends JFrame implements LibWindow {
         }
 
         if (!Pattern.matches(phonePattern, txtPhone.getText())) {
-            JOptionPane.showMessageDialog(this, "Phone number must be in the format 123-456-7890.");
+            JOptionPane.showMessageDialog(this, "Invalid phone number. Please enter a valid 10-digit US phone number.");
             return false;
         }
 
