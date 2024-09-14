@@ -123,7 +123,7 @@ public class CheckoutWindow extends JFrame implements LibWindow{
         } else {
             recordTitle.setText(lastMember.getFullName() +"'s checkbook record");
             checkoutHistoryTableModel.setColumnIdentifiers(new String[]{"ISBN",
-                    "title", "Checkout Date", "Due Date"});
+                    "Title", "Copy number", "Checkout Date", "Due Date"});
             checkoutHistoryTableModel.setRowCount(0);
             if (lastMember != null) {
                 List<CheckoutEntry> entries = lastMember.getCheckoutRecord().getEntries();
@@ -131,6 +131,7 @@ public class CheckoutWindow extends JFrame implements LibWindow{
                     checkoutHistoryTableModel.addRow(new Object[]{
                             e.getBookcopy().getBook().getIsbn(),
                             e.getBookcopy().getBook().getTitle(),
+                            e.getBookcopy().getCopyNum(),
                             e.getCheckoutDate(), e.getDueDate()});
                 }
 

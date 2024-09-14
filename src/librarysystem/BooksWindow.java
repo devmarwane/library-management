@@ -518,11 +518,16 @@ public class BooksWindow extends JFrame implements LibWindow{
             if (selectedRow != -1) {
                 BookCopy selectedCopy = book.getCopies()[selectedRow];
                 if (selectedCopy.isAvailable()) {
-                    book.removeCopy(selectedCopy);
-                    copyTableModel.removeRow(selectedRow);
-                    dataAccess.updateBook(book);
-                    JOptionPane.showMessageDialog(null, "The book copy no " + selectedCopy.getCopyNum() + " has been deleted successfully.");
-                } else {
+                    if (book.getCopies().length==1){
+                        JOptionPane.showMessageDialog(dialog, "You cannot delete all copies, the book must have at least one copy.");
+                    }else{
+                        book.removeCopy(selectedCopy);
+                        copyTableModel.removeRow(selectedRow);
+                        dataAccess.updateBook(book);
+                        JOptionPane.showMessageDialog(null, "The book copy no " + selectedCopy.getCopyNum() + " has been deleted successfully.");
+                    }
+                }
+                else {
                     JOptionPane.showMessageDialog(dialog, "Only available copies can be deleted.");
                 }
             } else {
